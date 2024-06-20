@@ -7,9 +7,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Args, Serialize, Deserialize, Default, Clone)]
 pub struct Config {
-    #[arg(short = 'u', long)]
-    #[serde(rename = "mod-url")]
-    mod_url: Option<String>,
+    #[arg(short, long)]
+    #[serde(rename = "mod-directory")]
+    mod_directory: Option<String>,
+    #[arg(short, long)]
+    #[serde(rename = "game-directory")]
+    game_directory: Option<String>,
 }
 
 impl Config {
@@ -27,9 +30,13 @@ impl Config {
     }
 
     pub fn set_fields(&mut self, other: Config) {
-        let Config { mod_url } = other;
+        let Config {
+            mod_directory,
+            game_directory
+        } = other;
 
-        if let Some(mod_url) = mod_url { self.mod_url = Some(mod_url) }
+        if let Some(cfg) = mod_directory { self.mod_directory = Some(cfg) }
+        if let Some(cfg) = game_directory { self.game_directory = Some(cfg) }
     }
 
     pub fn override_all_fields(&mut self, other: Config) {
@@ -37,17 +44,26 @@ impl Config {
     }
 
     pub fn echo_all_fields(self) {
-        let Config { mod_url } = self;
-        println!("[mod-url]: {mod_url}");
+        let Config {
+            mod_directory ,
+            game_directory
+        } = self;
+        println!("[mod-directory]: {mod_directory:?}");
+        println!("[game-directory]: {game_directory:?}");
     }
 
-    pub fn require_mod_url(&self) -> &String {
-        Self::require(&self.mod_url, "mod-url")
+    pub fn require_mod_directory(&self) -> &String {
+        Self::require(&self.mod_directory, "mod-directory")
+    }
+
+    pub fn require_game_directory(&self) -> &String {
+        Self::require(&self.game_directory, "game-directory")
     }
 
     fn require<'a, T>(field: &'a Option<T>, name: &str) -> &'a T {
         if field.is_none() {
-            eprintln!("Config field {name} is required for this command to work.");
+            eprintln!("Config field {name} is required for this command to work. \
+            (try running config set --{name} my_value)");
             exit(1);
         }
 
