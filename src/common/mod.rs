@@ -1,6 +1,7 @@
 mod config;
 mod files;
 mod province;
+mod paradox_file;
 
 pub use config::*;
 pub use files::*;
