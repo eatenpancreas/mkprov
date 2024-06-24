@@ -1,8 +1,7 @@
+use crate::common::Config;
+use clap::Args;
 use std::fs::File;
 use std::io::Write;
-use clap::Args;
-use crate::common::Config;
-
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
@@ -41,7 +40,8 @@ pub fn run(args: CmdArgs) {
         let religion = &args.religion;
         let capital = &args.capital;
 
-        let text = format!(r#"
+        let text = format!(
+            r#"
 #{id} - {name}
 culture = {culture}
 religion = {religion}
@@ -61,14 +61,15 @@ discovered_by = KON
 discovered_by = NDO
 discovered_by = LOA
 discovered_by = sub_saharan
-"#);
+"#
+        );
         match File::create(format!("{dir}/history/provinces/{id} - {name}.txt")) {
             Ok(mut f) => {
                 if let Err(e) = f.write_all(text.as_bytes()) {
                     eprintln!("{}", e)
                 }
             }
-            Err(e) => eprintln!("{}", e)
+            Err(e) => eprintln!("{}", e),
         }
     }
 }

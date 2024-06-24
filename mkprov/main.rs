@@ -1,16 +1,15 @@
-
 mod common;
 
 mod commands {
-    pub mod safe_make_provs;
-    pub mod list;
-    pub mod definition_list;
-    pub mod own;
     pub mod config;
+    pub mod definition_list;
+    pub mod list;
+    pub mod own;
+    pub mod safe_make_provs;
 }
 
-use clap::{Parser, Subcommand};
 use crate::commands::{config, definition_list, list, own, safe_make_provs};
+use clap::{Parser, Subcommand};
 
 /// Simple program to make a list of provinces
 #[derive(Parser, Debug)]

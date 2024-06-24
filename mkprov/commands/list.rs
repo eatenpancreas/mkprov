@@ -20,7 +20,9 @@ pub fn run(args: CmdArgs) {
     let mut i = 1;
     for id in args.starting_id..args.starting_id + args.count {
         print!("{id} ");
-        if i % args.line_end_every == 0 { println!(); }
+        if i % args.line_end_every == 0 {
+            println!();
+        }
         i += 1;
     }
     println!();

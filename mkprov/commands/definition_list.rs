@@ -1,5 +1,5 @@
-use clap::Args;
 use crate::common::Color;
+use clap::Args;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {

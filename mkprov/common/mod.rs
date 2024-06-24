@@ -1,7 +1,6 @@
 mod config;
 mod files;
 mod province;
-mod paradox_file;
 
 pub use config::*;
 pub use files::*;
@@ -38,7 +37,13 @@ impl Color {
         }
     }
 
-    pub fn r(&self) -> u8 { self.0[0] }
-    pub fn g(&self) -> u8 { self.0[1] }
-    pub fn b(&self) -> u8 { self.0[2] }
+    pub fn r(&self) -> u8 {
+        self.0[0]
+    }
+    pub fn g(&self) -> u8 {
+        self.0[1]
+    }
+    pub fn b(&self) -> u8 {
+        self.0[2]
+    }
 }

@@ -1,7 +1,6 @@
-
-use std::path::{PathBuf};
-use clap::Args;
 use crate::common::{Config, Province};
+use clap::Args;
+use std::path::PathBuf;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
@@ -20,7 +19,6 @@ pub fn run(args: CmdArgs) {
     let game_dir = PathBuf::from(cfg.require_game_directory());
 
     let mut prov = Province::pull(args.id, mod_dir, game_dir).unwrap();
-    prov.set_owner(args.tag);
+    // prov.set_owner(args.tag);
     prov.save();
 }
-

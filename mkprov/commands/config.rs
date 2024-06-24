@@ -1,5 +1,5 @@
-use clap::{Args, Subcommand};
 use crate::common::Config;
+use clap::{Args, Subcommand};
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
@@ -11,7 +11,7 @@ pub struct CmdArgs {
 pub enum Method {
     Set(Config),
     OverrideAll(Config),
-    Echo
+    Echo,
 }
 
 pub fn run(args: CmdArgs) {

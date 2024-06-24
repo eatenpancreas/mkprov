@@ -1,9 +1,9 @@
-use std::env::current_exe;
-use std::fs;
-use std::path::{PathBuf};
-use std::process::exit;
 use clap::Args;
 use serde::{Deserialize, Serialize};
+use std::env::current_exe;
+use std::fs;
+use std::path::PathBuf;
+use std::process::exit;
 
 #[derive(Debug, Args, Serialize, Deserialize, Default, Clone)]
 pub struct Config {
@@ -32,11 +32,15 @@ impl Config {
     pub fn set_fields(&mut self, other: Config) {
         let Config {
             mod_directory,
-            game_directory
+            game_directory,
         } = other;
 
-        if let Some(cfg) = mod_directory { self.mod_directory = Some(cfg) }
-        if let Some(cfg) = game_directory { self.game_directory = Some(cfg) }
+        if let Some(cfg) = mod_directory {
+            self.mod_directory = Some(cfg)
+        }
+        if let Some(cfg) = game_directory {
+            self.game_directory = Some(cfg)
+        }
     }
 
     pub fn override_all_fields(&mut self, other: Config) {
@@ -45,8 +49,8 @@ impl Config {
 
     pub fn echo_all_fields(self) {
         let Config {
-            mod_directory ,
-            game_directory
+            mod_directory,
+            game_directory,
         } = self;
         println!("[mod-directory]: {mod_directory:?}");
         println!("[game-directory]: {game_directory:?}");
@@ -62,12 +66,14 @@ impl Config {
 
     fn require<'a, T>(field: &'a Option<T>, name: &str) -> &'a T {
         if field.is_none() {
-            eprintln!("Config field {name} is required for this command to work. \
-            (try running config set --{name} my_value)");
+            eprintln!(
+                "Config field {name} is required for this command to work. \
+            (try running config set --{name} my_value)"
+            );
             exit(1);
         }
 
-        return field.as_ref().unwrap()
+        return field.as_ref().unwrap();
     }
 
     pub fn save(&self) {
