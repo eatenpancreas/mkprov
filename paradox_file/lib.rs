@@ -1,6 +1,8 @@
 mod parser;
-#[cfg(test)] mod tests;
 mod lexer;
+
+pub use parser::*;
+pub use lexer::*;
 
 #[derive(Debug)]
 pub struct ParadoxFile {
@@ -36,7 +38,7 @@ pub enum Literal<'f> {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Location(usize);
+pub struct Location(pub usize);
 
 #[derive(Debug)]
 pub struct Object<'f> {

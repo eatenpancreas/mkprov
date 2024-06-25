@@ -1,6 +1,6 @@
-use crate::{Location};
-use crate::lexer::{Token, Lexer};
-use crate::parser::Parser;
+#[cfg(test)]
+mod test {
+use paradox_file::{Location, Token, Lexer, Parser};
 
 const SIMPLE: &str = r#"
 width = 6400
@@ -195,4 +195,5 @@ fn full_file_adal_lex() {
     for ident in Lexer::new(FULL_FILE_ADAL) {
         println!("{ident:?}");
     }
+}
 }

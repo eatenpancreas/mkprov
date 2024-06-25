@@ -1,14 +1,14 @@
 use crate::Location;
 
-pub(crate) struct Lexer {
+pub struct Lexer {
     cursor: usize,
     characters: Vec<char>,
 }
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct Token {
-    pub(crate) location: Location,
-    pub(crate) content: String
+pub struct Token {
+    pub location: Location,
+    pub content: String
 }
 
 impl Token {

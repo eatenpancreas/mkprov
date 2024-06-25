@@ -3,5 +3,6 @@
 
 members = [
     "mkprov",
-    "paradox_file"
+    "paradox_file",
+    "tests"
 ]

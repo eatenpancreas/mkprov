@@ -1,0 +1,10 @@
+[package]
+name = "tests"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "tests.rs"
+
+[dependencies]
+paradox_file = { path = "../paradox_file/" }
