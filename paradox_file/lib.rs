@@ -1,60 +1,52 @@
 mod parser;
 mod lexer;
+mod token;
+mod parsed_structure;
+
 
 pub use parser::*;
 pub use lexer::*;
+pub use token::*;
+pub use parsed_structure::*;
 
-#[derive(Debug)]
-pub struct ParadoxFile {
-    pub(crate) raw: String,
-}
-
-impl From<String> for ParadoxFile {
-    fn from(raw: String) -> Self {
-        ParadoxFile { raw: raw.to_string() }
-    }
-}
-
-#[derive(Debug)]
-pub struct Field<'f> {
-    location: Location,
-    ft: FieldType<'f>,
-}
-
-#[derive(Debug)]
-pub enum FieldType<'f> {
-    KeyVal(KeyVal<'f>),
-    Literal(Literal<'f>),
-    Object(Object<'f>),
-}
-
-#[derive(Debug)]
-pub enum Literal<'f> {
-    U8(u8),
-    U16(u16),
-    F32(f32),
-    String(&'f str),
-    Date(Date),
-}
 
 #[derive(Debug, PartialEq)]
-pub struct Location(pub usize);
-
-#[derive(Debug)]
-pub struct Object<'f> {
-    fields: Vec<Field<'f>>,
+pub enum Literal {
+  U8(u8),
+  U16(u16),
+  F32(f32),
+  String(String),
+  Date(Date),
 }
 
-#[derive(Debug)]
-pub struct Date {
-    year: u16,
-    month: u8,
-    day: u8,
+impl Literal {
+  pub fn parse(content: String) -> Option<Literal> {
+    if content.starts_with(|ch: char| ch.is_numeric()) {
+      parse_numeral(&content)
+    } else {
+      // regular string
+      Some(Literal::String(content))
+    }
+  }
 }
 
-#[derive(Debug)]
-pub struct KeyVal<'f> {
-    key: Literal<'f>,
-    value: Literal<'f>,
-    value_location: Location,
+fn parse_numeral(content: &String) -> Option<Literal> {
+  let split: Vec<&str> = content.split('.').collect();
+  if split.len() == 3 {
+    Some(Date::new(
+      split[0].parse().ok()?,
+      split[1].parse().ok()?,
+      split[2].parse().ok()?
+    ).into_literal())
+  } else if split.len() == 2 {
+    Some(Literal::F32(content.parse().ok()?))
+  } else if split.len() == 1 {
+    if let Ok(u8) = split[0].parse() {
+      Some(Literal::U8(u8))
+    } else {
+      Some(Literal::U16(split[0].parse().ok()?))
+    }
+  } else {
+    None
+  }
 }

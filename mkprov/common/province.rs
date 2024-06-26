@@ -1,60 +1,17 @@
 use crate::common::dir_get_id_filename;
 use std::fs;
 use std::path::PathBuf;
+use paradox_file::{Object, Parser};
 
 pub struct Province {
-    file_contents: String,
+    contents: Object,
     location: String,
 }
 
 impl Province {
     pub fn save(&self) {
-        fs::write(&self.location, &self.file_contents).unwrap();
+        fs::write(&self.location, self.contents.to_string()).unwrap();
     }
-
-    // fn set_field(&mut self, field: &str, set_to: String) {
-    //     let mut new_lines = vec![];
-    //     let mut lines = self.file_contents.split('\n');
-    //     let mut found_field = false;
-    //
-    //     while let Some(line) = lines.next() {
-    //         let mut sides = line.split('=');
-    //
-    //         let lhs = sides.next().unwrap_or("").split_whitespace().next().unwrap_or("");
-    //         let rhs = sides.next().unwrap_or("").split_whitespace().next().unwrap_or("");
-    //
-    //         if sides.next().is_some() || lhs == "" || rhs == "" {
-    //             new_lines.push(line);
-    //         } else if rhs == "{" {
-    //             new_lines.push(line);
-    //             while let Some(line) = lines.next() {
-    //                 new_lines.push(line);
-    //                 if line.contains('{') {
-    //                     break;
-    //                 }
-    //             }
-    //         } else if !found_field && lhs == field {
-    //             new_lines.push(format!("{field} = {set_to}").as_str());
-    //             found_field = true;
-    //         } else {
-    //             new_lines.push(line);
-    //         }
-    //     }
-    //
-    //     let mut lines = String::new();
-    //     new_lines.iter().for_each(|line| {
-    //         lines.push_str(line);
-    //         lines.push('\n')
-    //     });
-    //
-    //
-    //     println!("{lines}");
-    //     self.file_contents = lines;
-    // }
-
-    // pub fn set_owner(&mut self, tag: String) {
-    //     self.set_field("owner",  tag);
-    // }
 
     pub fn pull(id: u16, mut mod_dir: PathBuf, mut game_dir: PathBuf) -> Option<Self> {
         mod_dir.push("history/provinces/");
@@ -87,9 +44,10 @@ impl Province {
             eprintln!("province ID {id} is not present in mod or basegame");
             return None;
         }
-
+        
+        let mut p = Parser::include_lexer(file_contents.as_str()).unwrap();
         Some(Province {
-            file_contents,
+            contents: p.parse().unwrap(),
             location,
         })
     }

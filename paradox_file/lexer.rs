@@ -1,20 +1,15 @@
-use crate::Location;
+use thiserror::Error;
+use crate::{Token};
 
 pub struct Lexer {
     cursor: usize,
     characters: Vec<char>,
 }
 
-#[derive(Debug, PartialEq)]
-pub struct Token {
-    pub location: Location,
-    pub content: String
-}
-
-impl Token {
-    pub fn is(&self, string: &str) -> bool {
-        self.content == string
-    }
+#[derive(Error, Debug)]
+pub enum LexerError {
+    #[error("Parsing error: String did not end until file")]
+    StringNotEnded
 }
 
 impl Lexer {
@@ -23,6 +18,15 @@ impl Lexer {
             characters: string.chars().collect(),
             cursor: 0,
         }
+    }
+    
+    pub fn unwrap_all(self) -> Vec<Token> {
+        self.filter_map(|res| {
+            match res {
+                Ok(token) => Some(token),
+                Err(err) => { eprintln!("{err}"); None }
+            }
+        }).collect()
     }
 
     /// Returns the next character (if available) and advances the cursor.
@@ -39,40 +43,55 @@ impl Lexer {
 }
 
 impl Iterator for Lexer {
-    type Item = Token;
+    type Item = Result<Token, LexerError>;
 
     /// takes any word that isn't a comment and formats it into separate, consumable chunks
     /// with a location of origin
     fn next(&mut self) -> Option<Self::Item> {
         let mut started = false;
-        let mut ident = Token {
-            location: Location(0),
-            content: String::new(),
-        };
+        let mut location = 0;
+        let mut content = String::new();
+        let mut is_lit_stringed = false;
         let mut is_comment = false;
         let mut is_string = false;
 
         while let Some(char) = self.pop() {
-            if *char == '"' && !is_comment { is_string = !is_string }
-            else if *char == '#' && !is_string { is_comment = true }
+            // Literal strings defined by " marks
+            if *char == '"' && !is_comment { 
+                is_string = !is_string;
+                if is_string { is_lit_stringed = true };
+            } else if *char == '=' && !is_string {
+                content.push(*char);
+                location = self.cursor - 1;
+                return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)))
+            } 
+            else if *char == '#' && !is_string { is_comment = true } // Enable comment mode
             else if is_comment {
-                if *char == '\n' { is_comment = false }
+                // End comments on newlines
+                if *char == '\n' {
+                    is_comment = false;
+                    // When encountering whitespace as token already contains something, return
+                    if started {
+                        return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)))
+                    }
+                }
             } else if !char.is_whitespace() || is_string {
-                ident.content.push(*char);
+                content.push(*char);
 
                 if !started {
-                    ident.location.0 = self.cursor - 1;
+                    location = self.cursor - 1;
                     started = true;
                 }
             } else if started {
-                return Some(ident)
+                // When encountering whitespace as token already contains something, return
+                return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)))
             }
         }
 
         if is_string {
-            eprintln!("Parsing error: String did not end until end of file");
+            Some(Err(LexerError::StringNotEnded))
+        } else {
+            None
         }
-
-        None
     }
 }
