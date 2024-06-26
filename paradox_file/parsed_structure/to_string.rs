@@ -15,9 +15,15 @@ impl Display for Object {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     let mut str = String::new();
     let padding = self.padding();
+    let lit_arr = self.is_literal_array();
+    let mut i = 0;
 
     for field in &self.fields {
-      str.push_str(padding.as_str());
+      if lit_arr && i % 4 != 0 {
+        str.push(' ');
+      } else {
+        str.push_str(padding.as_str());
+      }
       str.push_str(field.key.to_string().as_str());
 
       match &field.ft {
@@ -29,11 +35,14 @@ impl Display for Object {
         FieldType::Object(obj) => {
           str.push_str(" = {\n");
           str.push_str(obj.to_string().as_str());
-          str.push_str("}");
+          str.push_str("\n}\n");
         }
       }
 
-      str.push('\n');
+      if !lit_arr || i % 4 == 3 {
+        str.push('\n');
+      }
+      i+=1;
     }
 
 

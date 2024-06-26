@@ -47,6 +47,18 @@ impl Object {
   pub fn push_kv<KT: IntoLiteral, VT: IntoLiteral>(&mut self, key: KT, value: VT) {
     self.fields.push(Field::new(key, KeyVal::new(value)));
   }
+
+  pub fn is_literal_array(&self) -> bool {
+    let mut is_lit_array = true;
+
+    for field in &self.fields {
+      if field.ft != FieldType::Literal {
+        is_lit_array = false
+      }
+    }
+
+    is_lit_array
+  }
 }
 
 impl KeyVal {

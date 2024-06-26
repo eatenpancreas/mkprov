@@ -40,6 +40,10 @@ impl Lexer {
             None => None,
         }
     }
+
+    fn peek(&self) -> Option<&char> {
+        self.characters.get(self.cursor)
+    }
 }
 
 impl Iterator for Lexer {
@@ -54,19 +58,28 @@ impl Iterator for Lexer {
         let mut is_lit_stringed = false;
         let mut is_comment = false;
         let mut is_string = false;
+        let mut i = 0;
+
+        if self.peek().is_some_and(|c| *c  == '}') && !is_lit_stringed && content.len() > 0 {
+            return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)))
+        }
 
         while let Some(char) = self.pop() {
+            i+=1;
+
 
             // Literal strings defined by " marks
-            if *char == '"' && !is_comment { 
+            if *char == '"' && !is_comment {
                 is_string = !is_string;
                 if is_string { is_lit_stringed = true };
-            } else if *char == '=' && !is_string {
+            } else if *char == '=' && !is_string && !is_comment {
                 content.push(*char);
                 location = self.cursor - 1;
                 return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)))
             } 
-            else if *char == '#' && !is_string { is_comment = true } // Enable comment mode
+            else if *char == '#' && !is_string {
+                is_comment = true
+            } // Enable comment mode
             else if is_comment {
                 // End comments on newlines
                 if *char == '\n' {
