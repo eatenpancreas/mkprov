@@ -1,5 +1,5 @@
 
-use crate::{Field, FieldType, IntoLiteral, KeyVal, Literal, Object};
+use crate::{Field, FieldType, IntoLiteral, KeyVal, Object};
 
 impl Object {
   pub fn get_child_objects_mut(&mut self) -> Vec<&mut Object> {

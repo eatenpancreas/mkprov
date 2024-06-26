@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use std::{fs, io};
 use paradox_file::{AsFilename};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Id(pub u16);
 
 impl AsFilename for Id {
