@@ -9,17 +9,19 @@ impl Object {
     } else { None }).collect()
   }
   
-  pub fn mutate_key_val(&mut self, key: Literal, mutate: impl Fn(&mut KeyVal)) {
+  pub fn mutate_key_val<T: IntoLiteral>(&mut self, key: T, mutate: impl Fn(&mut KeyVal)) -> bool {
     for field in &mut self.fields {
       if let FieldType::KeyVal(kv) = &mut field.ft {
         if field.key == key {
           mutate(kv);
+          return true
         }
       }
     }
+    false
   }
 
-  pub fn push_field_kv(&mut self, key: Literal, value: Literal) {
+  pub fn push_field_kv<KT: IntoLiteral, VT: IntoLiteral>(&mut self, key: KT, value: VT) {
     self.fields.push(Field::new(key, KeyVal::new(value)));
   }
 }

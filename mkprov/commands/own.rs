@@ -1,6 +1,5 @@
-use crate::common::{Config, Province};
+use crate::common::{Config, Id, PdxFile};
 use clap::Args;
-use std::path::PathBuf;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
@@ -15,10 +14,17 @@ pub struct CmdArgs {
 
 pub fn run(args: CmdArgs) {
     let cfg = Config::current();
-    let mod_dir = PathBuf::from(cfg.require_mod_directory());
-    let game_dir = PathBuf::from(cfg.require_game_directory());
+    let mut file = PdxFile::pull(Id(args.id), cfg, "history/provinces/").unwrap();
 
-    let mut prov = Province::pull(args.id, mod_dir, game_dir).unwrap();
-    // prov.set_owner(args.tag);
-    prov.save();
+    if !file.contents.mutate_key_val("owner", 
+        |kv| kv.set_value(args.tag.clone())) {
+        file.contents.push_field_kv("owner", args.tag.clone())
+    }
+
+    if !file.contents.mutate_key_val("controller", 
+        |kv| kv.set_value(args.tag.clone())) {
+        file.contents.push_field_kv("controller", args.tag)
+    }
+    
+    file.save();
 }
