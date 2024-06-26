@@ -1,7 +1,5 @@
-mod config;
 mod files;
 
-pub use config::*;
 pub use files::*;
 
 use rand::Rng;

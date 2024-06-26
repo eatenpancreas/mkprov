@@ -1,7 +1,8 @@
-use crate::common::Config;
+
 use clap::Args;
 use std::fs::File;
 use std::io::Write;
+use paradox_file::Config;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {

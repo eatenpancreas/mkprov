@@ -41,6 +41,28 @@ pub const INCORRECT_2: &str = r#"
 
 pub const INCORRECT_3: &str = r#"="#;
 
+pub const FULL_UNC_FILE: &str = r#"
+#1000 - Dagobah
+culture = vroom
+religion = rawr
+capital = "The Capital"
+trade_goods = unknown
+hre = no
+base_tax = 1
+base_production = 1
+base_manpower = 1
+native_size = 90
+native_ferocity = 4
+native_hostileness = 12
+
+
+
+discovered_by = KON
+discovered_by = NDO
+discovered_by = LOA
+discovered_by = sub_saharan
+"#;
+
 pub const FULL_FILE_ADAL: &str = r#"
 government = monarchy
 add_government_reform = autocracy_reform

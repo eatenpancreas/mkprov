@@ -1,5 +1,6 @@
-use crate::common::Config;
+
 use clap::{Args, Subcommand};
+use paradox_file::Config;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {

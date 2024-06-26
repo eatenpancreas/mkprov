@@ -2,13 +2,15 @@ mod parser;
 mod lexer;
 mod token;
 mod parsed_structure;
-
+mod files;
+mod config;
 
 pub use parser::*;
 pub use lexer::*;
 pub use token::*;
+pub use files::*;
 pub use parsed_structure::*;
-
+pub use config::*;
 
 #[derive(Debug, PartialEq)]
 pub enum Literal {

@@ -9,7 +9,9 @@ impl Object {
     } else { None }).collect()
   }
   
-  pub fn mutate_key_val<T: IntoLiteral>(&mut self, key: T, mutate: impl Fn(&mut KeyVal)) -> bool {
+  /// returns true if field got successfully mutated
+  pub fn mutate_kv<T: IntoLiteral>(&mut self, key: T, mutate: impl Fn(&mut KeyVal)) -> bool {
+    let key = key.into_literal();
     for field in &mut self.fields {
       if let FieldType::KeyVal(kv) = &mut field.ft {
         if field.key == key {
@@ -21,7 +23,18 @@ impl Object {
     false
   }
 
-  pub fn push_field_kv<KT: IntoLiteral, VT: IntoLiteral>(&mut self, key: KT, value: VT) {
+  /// pushes a new key-value in an object
+  pub fn insert_kv<KT: IntoLiteral, VT: IntoLiteral>(&mut self, index: usize, key: KT, value: VT) {
+    self.fields.insert(index, Field::new(key, KeyVal::new(value)));
+  }
+
+  /// see [`Vec::retain`] for the implementation
+  pub fn retain(&mut self, f: impl FnMut(&Field) -> bool) {
+    self.fields.retain(f);
+  }
+
+  /// pushes a new key-value in an object
+  pub fn push_kv<KT: IntoLiteral, VT: IntoLiteral>(&mut self, key: KT, value: VT) {
     self.fields.push(Field::new(key, KeyVal::new(value)));
   }
 }

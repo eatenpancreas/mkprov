@@ -12,6 +12,12 @@ pub struct Field {
   ft: FieldType,
 }
 
+impl Field {
+  pub fn key_is<T: IntoLiteral>(&self, t: T) -> bool {
+    t.into_literal() == self.key
+  }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum FieldType {
   KeyVal(KeyVal),

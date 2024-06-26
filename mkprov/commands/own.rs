@@ -1,5 +1,7 @@
-use crate::common::{Config, Id, PdxFile};
+
 use clap::Args;
+use paradox_file::{Config, PdxFile};
+use crate::common::Id;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
@@ -16,14 +18,14 @@ pub fn run(args: CmdArgs) {
     let cfg = Config::current();
     let mut file = PdxFile::pull(Id(args.id), cfg, "history/provinces/").unwrap();
 
-    if !file.contents.mutate_key_val("owner", 
+    if !file.contents.mutate_kv("owner", 
         |kv| kv.set_value(args.tag.clone())) {
-        file.contents.push_field_kv("owner", args.tag.clone())
+        file.contents.insert_kv(0,"owner", args.tag.clone())
     }
 
-    if !file.contents.mutate_key_val("controller", 
+    if !file.contents.mutate_kv("controller", 
         |kv| kv.set_value(args.tag.clone())) {
-        file.contents.push_field_kv("controller", args.tag)
+        file.contents.insert_kv(1, "controller", args.tag)
     }
     
     file.save();
