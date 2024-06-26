@@ -69,6 +69,7 @@ impl Parser {
     fn parse_fields(
         &mut self, fields: &mut Vec<Field>, closing_loc: &mut usize, nesting: usize
     ) -> Result<(), ParserError> {
+
         while let Some(token) = self.pop() { match token.token_type {
             Some(TokenType::Literal(lit)) => {
                 let peek = self.peek();

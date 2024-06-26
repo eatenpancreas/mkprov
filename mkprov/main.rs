@@ -5,10 +5,12 @@ mod commands {
     pub mod definition_list;
     pub mod list;
     pub mod own;
+    pub mod copy;
+    pub mod area;
     pub mod safe_make_provs;
 }
 
-use crate::commands::{config, definition_list, list, own, safe_make_provs};
+use crate::commands::{area, config, copy, definition_list, list, own, safe_make_provs};
 use clap::{Parser, Subcommand};
 
 /// Simple program to make a list of provinces
@@ -31,6 +33,10 @@ enum Command {
     Own(own::CmdArgs),
     /// Changes project configs.
     Config(config::CmdArgs),
+    /// Copies a province defines to another
+    Copy(copy::CmdArgs),
+    /// Gets the area from one province and puts it in the other
+    Area(area::CmdArgs),
 }
 
 fn main() {
@@ -40,5 +46,7 @@ fn main() {
         Command::DefinitionList(args) => definition_list::run(args),
         Command::Own(args) => own::run(args),
         Command::Config(args) => config::run(args),
+        Command::Copy(args) => copy::run(args),
+        Command::Area(args) => area::run(args),
     };
 }

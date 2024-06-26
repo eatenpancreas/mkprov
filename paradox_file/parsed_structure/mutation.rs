@@ -33,6 +33,16 @@ impl Object {
     self.fields.retain(f);
   }
 
+  /// see [`core::slice::IterMut::find`] for the implementation
+  pub fn find_mut(&mut self, f: impl FnMut(&&mut Field) -> bool) -> Option<&mut Field> {
+    self.fields.iter_mut().find(f)
+  }
+
+  /// see [`Vec::push`] for the implementation
+  pub fn push(&mut self, f: Field) {
+    self.fields.push(f);
+  }
+
   /// pushes a new key-value in an object
   pub fn push_kv<KT: IntoLiteral, VT: IntoLiteral>(&mut self, key: KT, value: VT) {
     self.fields.push(Field::new(key, KeyVal::new(value)));

@@ -5,6 +5,20 @@ width = 6400
 height = 2560
 "#;
 
+pub const PROBLEMATIC_LEX: &str = r#"
+bahama_channel_area = {
+	1503 1505 1524 1525
+}
+
+#Lakes:
+#Listed by themselves in order to be easier to remove if needed.
+
+#
+#central_asian_lakes_area = {
+#	1326 1327 1653 1654 1888
+#}
+"#;
+
 pub const COMMENTS_ETC: &str = r#"
 #Hello world!
 width = 6400

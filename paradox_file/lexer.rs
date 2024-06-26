@@ -56,6 +56,7 @@ impl Iterator for Lexer {
         let mut is_string = false;
 
         while let Some(char) = self.pop() {
+
             // Literal strings defined by " marks
             if *char == '"' && !is_comment { 
                 is_string = !is_string;

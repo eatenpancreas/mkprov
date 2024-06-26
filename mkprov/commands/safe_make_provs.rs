@@ -11,7 +11,7 @@ pub struct CmdArgs {
     name: String,
 
     /// Default culture for province
-    #[arg(short = 'c', long, default_value = "sawabantu")]
+    #[arg(short = 'u', long, default_value = "sawabantu")]
     culture: String,
 
     /// Default religion for province

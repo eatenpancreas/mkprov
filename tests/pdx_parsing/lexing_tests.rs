@@ -1,5 +1,5 @@
 use paradox_file::{Lexer, Token};
-use crate::pdx_parsing::files::{COMMENTS_ETC, FULL_FILE_ADAL, OBJECTS, SIMPLE};
+use crate::pdx_parsing::files::{COMMENTS_ETC, FULL_FILE_ADAL, OBJECTS, PROBLEMATIC_LEX, SIMPLE};
 
 #[test]
 fn simple_lex() {
@@ -11,6 +11,20 @@ fn simple_lex() {
     Token::new(14, "height", false),
     Token::new(21, "=", false),
     Token::new(23, "2560", false),
+  ])
+}
+#[test]
+fn problematic_lex_lex() {
+  let idents = Lexer::new(PROBLEMATIC_LEX).unwrap_all();
+  assert_eq!(idents, vec![
+    Token::new(1, "bahama_channel_area", false),
+    Token::new(21, "=", false),
+    Token::new(23, "{", false),
+    Token::new(26, "1503", false),
+    Token::new(31, "1505", false),
+    Token::new(36, "1524", false),
+    Token::new(41, "1525", false),
+    Token::new(46, "}", false),
   ])
 }
 

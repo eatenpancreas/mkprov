@@ -16,7 +16,7 @@ pub struct CmdArgs {
 
 pub fn run(args: CmdArgs) {
     let cfg = Config::current();
-    let mut file = PdxFile::pull(Id(args.id), cfg, "history/provinces/").unwrap();
+    let mut file = PdxFile::pull(Id(args.id), &cfg, "history/provinces/").unwrap();
 
     if !file.contents.mutate_kv("owner", 
         |kv| kv.set_value(args.tag.clone())) {
@@ -27,6 +27,11 @@ pub fn run(args: CmdArgs) {
         |kv| kv.set_value(args.tag.clone())) {
         file.contents.insert_kv(1, "controller", args.tag)
     }
+
+    file.contents.retain(|field| !field.key_is("native_size")
+        && !field.key_is("native_ferocity")
+        && !field.key_is("native_hostileness")
+    );
     
     file.save();
 }
