@@ -14,15 +14,15 @@ pub struct CmdArgs {
 
 pub fn run(args: CmdArgs) {
     let cfg = Config::current();
-    let mut file = PdxFile::pull("area.txt", &cfg, "map/").unwrap();
+    let mut file = PdxFile::pull(&cfg, "map/", &"area.txt");
 
     let mut areas = file.contents.get_child_objects_mut();
 
-    for mut area in &mut areas {
+    for area in &mut areas {
         area.retain(|f| !f.key_is(args.to_prov_id))
     }
 
-    for mut area in areas {
+    for area in areas {
         if area.find_mut(|x| x.key_is(args.from_area_prov_id)).is_some() {
             area.push(Field::new_literal(args.to_prov_id));
             break;

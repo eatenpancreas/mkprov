@@ -58,16 +58,12 @@ impl Iterator for Lexer {
         let mut is_lit_stringed = false;
         let mut is_comment = false;
         let mut is_string = false;
-        let mut i = 0;
 
         if self.peek().is_some_and(|c| *c  == '}') && !is_lit_stringed && content.len() > 0 {
             return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)))
         }
 
         while let Some(char) = self.pop() {
-            i+=1;
-
-
             // Literal strings defined by " marks
             if *char == '"' && !is_comment {
                 is_string = !is_string;

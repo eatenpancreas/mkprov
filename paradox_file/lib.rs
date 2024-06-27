@@ -4,6 +4,7 @@ mod token;
 mod parsed_structure;
 mod files;
 mod config;
+mod localisation;
 
 pub use parser::*;
 pub use lexer::*;
