@@ -17,8 +17,8 @@ pub struct Config {
 
 impl Config {
     pub fn current() -> Config {
-        let pbuf = current_config_file();
-        let path = pbuf.as_path();
+        let p_buf = current_config_file();
+        let path = p_buf.as_path();
         if let Ok(true) = path.try_exists() {
             let file = String::from_utf8(fs::read(path).unwrap()).unwrap();
             toml::from_str(file.as_str()).unwrap()

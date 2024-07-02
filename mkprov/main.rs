@@ -8,10 +8,11 @@ mod commands {
     pub mod copy;
     pub mod area;
     pub mod safe_make_provs;
+    pub mod rename;
 }
 
-use crate::commands::{area, config, copy, definition_list, list, own, safe_make_provs};
 use clap::{Parser, Subcommand};
+use commands as cmd;
 
 /// Simple program to make a list of provinces
 #[derive(Parser, Debug)]
@@ -24,29 +25,32 @@ struct Args {
 #[derive(Debug, Subcommand)]
 enum Command {
     /// Makes a list of non-owned, basic provinces in MOD/history/provinces.
-    SafeMakeProvs(safe_make_provs::CmdArgs),
+    SafeMakeProvs(cmd::safe_make_provs::CmdArgs),
     /// Makes a simple list province id's for use in area.txt, default.map, etc.
-    List(list::CmdArgs),
+    List(cmd::list::CmdArgs),
     /// Makes a list of provinces for use in definition.csv, picking random colors and iterating through them.
-    DefinitionList(definition_list::CmdArgs),
+    DefinitionList(cmd::definition_list::CmdArgs),
     /// Converts a province to an owner tag.
-    Own(own::CmdArgs),
+    Own(cmd::own::CmdArgs),
     /// Changes project configs.
-    Config(config::CmdArgs),
+    Config(cmd::config::CmdArgs),
     /// Copies a province defines to another
-    Copy(copy::CmdArgs),
+    Copy(cmd::copy::CmdArgs),
     /// Gets the area from one province and puts it in the other
-    Area(area::CmdArgs),
+    Area(cmd::area::CmdArgs),
+    /// Renames a province
+    Rename(cmd::rename::CmdArgs),
 }
 
 fn main() {
     match Args::parse().command {
-        Command::SafeMakeProvs(args) => safe_make_provs::run(args),
-        Command::List(args) => list::run(args),
-        Command::DefinitionList(args) => definition_list::run(args),
-        Command::Own(args) => own::run(args),
-        Command::Config(args) => config::run(args),
-        Command::Copy(args) => copy::run(args),
-        Command::Area(args) => area::run(args),
+        Command::SafeMakeProvs(args) => cmd::safe_make_provs::run(args),
+        Command::List(args) => cmd::list::run(args),
+        Command::DefinitionList(args) => cmd::definition_list::run(args),
+        Command::Own(args) => cmd::own::run(args),
+        Command::Config(args) => cmd::config::run(args),
+        Command::Copy(args) => cmd::copy::run(args),
+        Command::Area(args) => cmd::area::run(args),
+        Command::Rename(args) => cmd::rename::run(args),
     };
 }

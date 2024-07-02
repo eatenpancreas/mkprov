@@ -10,7 +10,9 @@ impl Object {
   }
   
   /// returns true if field got successfully mutated
-  pub fn mutate_kv<T: IntoLiteral>(&mut self, key: T, mutate: impl Fn(&mut KeyVal)) -> bool {
+  pub fn mutate_kv<T: IntoLiteral>(
+    &mut self, key: T, mutate: impl Fn(&mut KeyVal)
+  ) -> bool {
     let key = key.into_literal();
     for field in &mut self.fields {
       if let FieldType::KeyVal(kv) = &mut field.ft {
@@ -24,7 +26,9 @@ impl Object {
   }
 
   /// pushes a new key-value in an object
-  pub fn insert_kv<KT: IntoLiteral, VT: IntoLiteral>(&mut self, index: usize, key: KT, value: VT) {
+  pub fn insert_kv<KT: IntoLiteral, VT: IntoLiteral>(
+    &mut self, index: usize, key: KT, value: VT
+  ) {
     self.fields.insert(index, Field::new(key, KeyVal::new(value)));
   }
 
@@ -34,7 +38,9 @@ impl Object {
   }
 
   /// see [`core::slice::IterMut::find`] for the implementation
-  pub fn find_mut(&mut self, f: impl FnMut(&&mut Field) -> bool) -> Option<&mut Field> {
+  pub fn find_mut(
+    &mut self, f: impl FnMut(&&mut Field) -> bool
+  ) -> Option<&mut Field> {
     self.fields.iter_mut().find(f)
   }
 
@@ -44,7 +50,9 @@ impl Object {
   }
 
   /// pushes a new key-value in an object
-  pub fn push_kv<KT: IntoLiteral, VT: IntoLiteral>(&mut self, key: KT, value: VT) {
+  pub fn push_kv<KT: IntoLiteral, VT: IntoLiteral>(
+    &mut self, key: KT, value: VT
+  ) {
     self.fields.push(Field::new(key, KeyVal::new(value)));
   }
 

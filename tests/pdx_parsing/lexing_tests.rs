@@ -13,6 +13,7 @@ fn simple_lex() {
     Token::new(23, "2560", false),
   ])
 }
+
 #[test]
 fn problematic_lex_lex() {
   let idents = Lexer::new(PROBLEMATIC_LEX).unwrap_all();

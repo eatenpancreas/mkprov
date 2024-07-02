@@ -14,13 +14,13 @@ fn simple_parse() {
 #[test]
 fn objects_parse() {
   let mut parser = Parser::include_lexer(OBJECTS).unwrap();
-  println!("{:#?}", parser.parse());
+  println!("{:#?}", parser.parse().unwrap());
 }
 
 #[test]
 fn comments_etc_parse() {
   let mut parser = Parser::include_lexer(COMMENTS_ETC).unwrap();
-  println!("{:#?}", parser.parse());
+  println!("{:#?}", parser.parse().unwrap());
 }
 
 #[test]

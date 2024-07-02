@@ -7,22 +7,19 @@ use paradox_file::{AsFilename};
 pub struct Id(pub u16);
 
 impl AsFilename for Id {
-    fn as_filename(&self, dir: &PathBuf) -> Option<String> {
-        if let Some(Ok(entry)) = find_id(dir, self.0) {
-            let os = entry.file_name();
-            os.to_str().and_then(|x| Some(x.to_string()))
-        } else {
-            None
+    fn as_filename(&self, dir: &PathBuf) -> io::Result<String> {
+        let entry = find_id(dir, self.0)?;
+        let os = entry.file_name();
+        match os.to_str() {
+            Some(osstr) => Ok(osstr.to_string()),
+            None => Err(io::Error::new(io::ErrorKind::Unsupported, 
+                "Could not parse filename"))
         }
     }
 }
 
-fn find_id(dir: &PathBuf, id: u16) -> Option<io::Result<DirEntry>> {
-    let read = fs::read_dir(dir);
-    if read.is_err() {
-        return None;
-    }
-    let mut read = read.unwrap();
+fn find_id(dir: &PathBuf, id: u16) -> io::Result<DirEntry> {
+    let mut read = fs::read_dir(dir)?;
     let id = format!("{id} -");
 
     read.find(|dir_entry| {
@@ -35,5 +32,5 @@ fn find_id(dir: &PathBuf, id: u16) -> Option<io::Result<DirEntry>> {
         } else {
             false
         }
-    })
+    }).unwrap_or(Err(io::Error::new(io::ErrorKind::NotFound, "Could not find Id")))
 }

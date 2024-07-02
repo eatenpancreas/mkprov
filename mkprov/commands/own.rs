@@ -16,7 +16,7 @@ pub struct CmdArgs {
 
 pub fn run(args: CmdArgs) {
     let cfg = Config::current();
-    let mut file = PdxFile::pull(&cfg, "history/provinces/", &Id(args.id));
+    let mut file = PdxFile::pull(&cfg, "history/provinces/", &Id(args.id)).unwrap();
 
     let tag = args.tag.to_uppercase();
 

@@ -10,13 +10,25 @@ bahama_channel_area = {
 	1503 1505 1524 1525
 }
 
-#Lakes:
-#Listed by themselves in order to be easier to remove if needed.
+#The problem is the equals sign being picked up in comments
 
 #
 #central_asian_lakes_area = {
 #	1326 1327 1653 1654 1888
 #}
+"#;
+
+pub const PROBLEMATIC_LEX_2: &str = r#"
+bahama_channel_area = {
+	1503 1505 1524 1525
+}
+
+#The problem is the brackets being picked up as something else
+
+#
+#central_asian_lakes_area = {1326 1327 1653 1654 1888}
+#central_asian_lakes_area = {
+#	1326 1327 1653 1654 1888}
 "#;
 
 pub const COMMENTS_ETC: &str = r#"

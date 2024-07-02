@@ -17,7 +17,7 @@ pub struct CmdArgs {
 pub fn run(args: CmdArgs) {
     let cfg = Config::current();
     let from = PdxFile::inspect(&cfg, "history/provinces/", &Id(args.from_id)).unwrap();
-    let mut file = PdxFile::pull(&cfg, "history/provinces/", &Id(args.to_id));
+    let mut file = PdxFile::pull(&cfg, "history/provinces/", &Id(args.to_id)).unwrap();
 
     file.contents = from;
 
