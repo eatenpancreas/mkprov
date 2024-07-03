@@ -1,18 +1,19 @@
 mod pdx;
-mod yml;
+mod localisation;
 mod as_filename;
+mod definition;
 
 pub use pdx::*;
 pub use as_filename::*;
-pub use yml::*;
+pub use localisation::*;
+pub use definition::*;
 
-use std::fmt::{Debug, Display};
 use std::{fs, io};
-use std::ffi::OsStr;
-use std::io::{ErrorKind, Read};
+use std::io::{ErrorKind};
 use std::path::PathBuf;
 
 
+#[derive(Debug)]
 pub(crate) struct LocalFile {
   path: PathBuf
 }
@@ -24,12 +25,12 @@ impl LocalFile {
     Ok(Filename(Self::get_name_inner(&mut PathBuf::from(base_path), sub_directory, filename)?))
   }
 
-  pub(crate) fn convert_name(&mut self, convert_name: impl Fn(&OsStr) -> String) -> io::Result<()> {
+  pub(crate) fn convert_name(&mut self, convert_name: impl Fn(Option<String>) -> String) -> io::Result<()> {
     let prev = self.path.clone();
 
     let filename = self.path.file_name().ok_or(
       io::Error::new(ErrorKind::InvalidData, "Filename could not be read")
-    )?;
+    )?.to_str().and_then(|x| Some(x.to_string()));
     self.path.pop();
     self.path.push(convert_name(filename));
     

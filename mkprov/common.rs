@@ -12,8 +12,8 @@ impl AsFilename for Id {
         let os = entry.file_name();
         match os.to_str() {
             Some(osstr) => Ok(osstr.to_string()),
-            None => Err(io::Error::new(io::ErrorKind::Unsupported, 
-                "Could not parse filename"))
+            None => Err(io::Error::new(io::ErrorKind::Unsupported,
+                                       "Could not parse filename"))
         }
     }
 }
@@ -24,7 +24,7 @@ fn find_id(dir: &PathBuf, id: u16) -> io::Result<DirEntry> {
 
     read.find(|dir_entry| {
         if let Some(dir_entry) = dir_entry.as_ref().ok()
-          .and_then(|de| Some(de.file_name())) {
+            .and_then(|de| Some(de.file_name())) {
             dir_entry
                 .to_str()
                 .and_then(|dir_entry| Some(dir_entry.starts_with(id.as_str())))

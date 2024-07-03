@@ -2,7 +2,7 @@
 
 
 use clap::Args;
-use paradox_file::{Config, PdxFile, YmlFile};
+use paradox_file::{Config, PdxFile, LocalisationFile, DefinitionCsv};
 use crate::common::Id;
 
 #[derive(Debug, Args)]
@@ -26,8 +26,13 @@ pub struct CmdArgs {
 
 pub fn run(args: CmdArgs) {
   let cfg = Config::current();
-  let mut yml = YmlFile::load_localisation(&cfg).unwrap();
+  let mut yml = LocalisationFile::load_localisation(&cfg).unwrap();
   yml.replace_or_add_key_name(args.id, args.to.clone(), args.priority);
+  yml.save();
+
+  let mut def = DefinitionCsv::load(&cfg).unwrap();
+  def.rename(args.id, args.to.clone());
+  def.save();
   
   let mut file = PdxFile::pull(&cfg, "history/provinces/", &Id(args.id)).unwrap();
   
@@ -39,5 +44,6 @@ pub fn run(args: CmdArgs) {
   }
   
   file.rename_prov_name(args.id, args.to).unwrap();
+
   file.save();
 }

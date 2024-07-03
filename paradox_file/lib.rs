@@ -4,6 +4,7 @@ mod token;
 mod parsed_structure;
 mod files;
 mod config;
+mod color;
 
 pub use parser::*;
 pub use lexer::*;
@@ -11,6 +12,7 @@ pub use token::*;
 pub use files::*;
 pub use parsed_structure::*;
 pub use config::*;
+pub use color::*;
 
 #[derive(Debug, PartialEq)]
 pub enum Literal {

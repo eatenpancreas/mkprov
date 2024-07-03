@@ -67,6 +67,10 @@ impl Object {
 
     is_lit_array
   }
+
+  pub fn len(&self) -> usize {
+    self.fields.len()
+  }
 }
 
 impl KeyVal {
