@@ -7,13 +7,11 @@ use crate::common::Id;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
-  /// province ID
-  #[arg(short, long)]
-  id: u16,
+  /// ID of province to be renamed
+  prov_id: u16,
   
-  /// Rename province to
-  #[arg(short, long)]
-  to: String,
+  /// What to rename province into
+  rename_into: String,
   
   // rename capital to
   #[arg(short, long)]
@@ -27,14 +25,15 @@ pub struct CmdArgs {
 pub fn run(args: CmdArgs) {
   let cfg = Config::current();
   let mut yml = LocalisationFile::load_localisation(&cfg).unwrap();
-  yml.replace_or_add_key_name(args.id, args.to.clone(), args.priority);
+  yml.replace_or_add_key_name(args.prov_id, args.rename_into.clone(), args.priority);
   yml.save();
 
   let mut def = DefinitionCsv::load(&cfg).unwrap();
-  def.rename(args.id, args.to.clone());
+  def.rename(args.prov_id, args.rename_into.clone());
   def.save();
   
-  let mut file = PdxFile::pull(&cfg, "history/provinces/", &Id(args.id)).unwrap();
+  let mut file = PdxFile::pull(
+    &cfg, "history/provinces/", &Id(args.prov_id)).unwrap();
   
   if let Some(capital) = args.capital {
     if !file.contents.mutate_kv("capital",
@@ -43,7 +42,7 @@ pub fn run(args: CmdArgs) {
     }
   }
   
-  file.rename_prov_name(args.id, args.to).unwrap();
+  file.rename_prov_name(args.prov_id, args.rename_into).unwrap();
 
   file.save();
 }

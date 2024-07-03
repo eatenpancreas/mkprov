@@ -44,6 +44,12 @@ impl IntoLiteral for String {
   }
 }
 
+impl IntoLiteral for &String {
+  fn into_literal(self) -> Literal {
+    Literal::String(self.to_string())
+  }
+}
+
 impl IntoLiteral for f32 {
   fn into_literal(self) -> Literal {
     Literal::F32(self)

@@ -4,12 +4,10 @@ use paradox_file::{Config, Field, PdxFile};
 #[derive(Debug, Args)]
 pub struct CmdArgs {
     /// ID of province that has the right area
-    #[arg(short, long)]
-    from_area_prov_id: u16,
+    pub(crate) from_prov_id: u16,
 
     /// province ID that is going to change area
-    #[arg(short, long)]
-    to_prov_id: u16,
+    pub(crate) to_prov_id: u16,
 }
 
 pub fn run(args: CmdArgs) {
@@ -23,7 +21,7 @@ pub fn run(args: CmdArgs) {
     }
 
     for area in areas {
-        if area.find_mut(|x| x.key_is(args.from_area_prov_id)).is_some() {
+        if area.find_mut(|x| x.key_is(args.from_prov_id)).is_some() {
             area.push(Field::new_literal(args.to_prov_id));
             break;
         }

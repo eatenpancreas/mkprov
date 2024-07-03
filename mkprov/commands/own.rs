@@ -6,30 +6,29 @@ use crate::common::Id;
 #[derive(Debug, Args)]
 pub struct CmdArgs {
     /// Tag that will own province
-    #[arg(short, long)]
-    tag: String,
+    owner_tag: String,
 
     /// province ID
-    #[arg(short, long)]
-    id: u16,
+    prov_id: u16,
 }
 
 pub fn run(args: CmdArgs) {
     let cfg = Config::current();
-    let mut file = PdxFile::pull(&cfg, "history/provinces/", &Id(args.id)).unwrap();
+    let mut file = PdxFile::pull(
+        &cfg, "history/provinces/", &Id(args.prov_id)).unwrap();
 
-    let tag = args.tag.to_uppercase();
+    let tag = args.owner_tag.to_uppercase();
 
     if !file.contents.mutate_kv("owner", 
-        |kv| kv.set_value(tag.clone())) {
-        file.contents.insert_kv(0,"owner", tag.clone())
+        |kv| kv.set_value(&tag)) {
+        file.contents.insert_kv(0,"owner", &tag)
     }
 
     if !file.contents.mutate_kv("controller", 
-        |kv| kv.set_value(tag.clone())) {
-        file.contents.insert_kv(1, "controller", tag.clone())
+        |kv| kv.set_value(&tag)) {
+        file.contents.insert_kv(1, "controller", &tag)
     }
-    file.contents.insert_kv(1, "add_core", tag.clone());
+    file.contents.insert_kv(1, "add_core", &tag);
 
     file.contents.retain(|field| !field.key_is("native_size")
         && !field.key_is("native_ferocity")
@@ -38,5 +37,5 @@ pub fn run(args: CmdArgs) {
     
     file.save();
 
-    println!("{tag} now owns {}!", args.id);
+    println!("{tag} now owns {}!", args.prov_id);
 }

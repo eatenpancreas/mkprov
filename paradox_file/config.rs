@@ -68,7 +68,7 @@ impl Config {
         if field.is_none() {
             eprintln!(
                 "Config field {name} is required for this command to work. \
-            (try running config set --{name} my_value)"
+            (try running mkprov cfg set --{name} my_value)"
             );
             exit(1);
         }

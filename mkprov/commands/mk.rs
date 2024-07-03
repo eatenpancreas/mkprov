@@ -24,7 +24,6 @@ pub struct CmdArgs {
     capital: String,
 
     /// amount of provinces to make
-    #[arg(short, long)]
     count: u16,
 }
 
@@ -35,18 +34,27 @@ pub fn run(args: CmdArgs) {
     let province = province_def(&args);
     let name = &args.name;
 
-    let mut area_file = PdxFile::pull(&cfg, "map/", &"area.txt").unwrap();
+    let mut area_file = PdxFile::pull(
+        &cfg, "map/", &"area.txt").unwrap();
+    let mut default_file = PdxFile::pull(
+        &cfg, "map/", &"default.map").unwrap();
 
     let mut def = DefinitionCsv::load(&cfg).unwrap();
 
     let mut rng = rand::thread_rng();
     let area_name = format!("generated_area_{}", rng.gen_range(0..u16::MAX));
     let mut area_ids = vec![];
-    let mut id = def.max_id() + 1;
+    let mut id = def.max_id();
     let mut col = Color::random();
     let rgb_shift = RGBShift::random();
 
+    default_file.contents.mutate_kv("max_provs", |kv| {
+        kv.set_value(id + args.count)
+    });
+
     for _ in 0..args.count {
+        id += 1;
+        
         def.push(id, col, name.clone());
 
         area_ids.push(Field::new_literal(id));
@@ -60,13 +68,12 @@ pub fn run(args: CmdArgs) {
             Err(e) => eprintln!("{}", e),
         }
 
-        id += 1;
-
         col.shift(rgb_shift);
     }
 
     area_file.contents.push(Field::new(area_name, Object::new(area_ids, 1)));
     area_file.save();
+    default_file.save();
     def.save();
 }
 

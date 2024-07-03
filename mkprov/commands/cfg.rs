@@ -10,8 +10,11 @@ pub struct CmdArgs {
 
 #[derive(Debug, Subcommand, Clone)]
 pub enum Method {
+    /// sets configs if mentioned
     Set(Config),
+    /// overrides configs, if not mentioned it will delete
     OverrideAll(Config),
+    /// echo's current config
     Echo,
 }
 
