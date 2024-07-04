@@ -34,14 +34,13 @@ fn main() {
     let mut config = Config::current().unwrap();
     if config.is_first_time {
         let ans = Confirm::new(
-            "mkprov is a tool designed for total overhaul mods for eu4.\
-            There are a couple issues, particularly it'll modify files in the mod for convenience.\
-            There is currently no support for comments, and as it modifies files it will gradually \
-            delete all comments in files it touches. Make sure you are okay with this before using \
-            the tool."
+            "Are you sure you want to use mkprov for modding?"
         )
           .with_default(false)
-          .with_help_message("Are you okay with this?")
+          .with_help_message("mkprov is a in-beta tool designed for total overhaul mods for eu4.\
+            There are a couple issues, particularly there is no support for comments, and as it \
+            modifies files it will gradually delete all comments in files it touches. \
+            Make sure you are okay with this before using the tool.")
           .prompt().unwrap_or(false);
         
         if !ans { return; }

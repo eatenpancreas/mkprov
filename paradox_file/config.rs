@@ -8,12 +8,15 @@ use std::string::{FromUtf8Error};
 use thiserror::Error;
 use crate::if_err;
 
+fn default_true() -> bool { true }
+
 #[derive(Serialize, Deserialize, Default)]
 pub struct Config {
     #[serde(rename = "mod-directory")]
     mod_directory: Option<String>,
     #[serde(rename = "game-directory")]
     game_directory: Option<String>,
+    #[serde(default = "default_true")]
     pub is_first_time: bool,
 }
 
@@ -65,8 +68,15 @@ impl Config {
             game_directory,
             ..
         } = self;
-        println!("[mod-directory]: {mod_directory:?}");
-        println!("[game-directory]: {game_directory:?}");
+        
+        println!("[mod-directory]: {}", 
+            Self::echo_str(mod_directory).unwrap_or(""));
+        println!("[game-directory]: {}", 
+            Self::echo_str(game_directory).unwrap_or(""));
+    }
+    
+    fn echo_str(string: &Option<String>) -> Option<&str> { 
+        string.as_ref().and_then(|x| Some(x.as_str()))
     }
 
     pub fn require_mod_directory(&self) -> Result<&String, RequireError> {
