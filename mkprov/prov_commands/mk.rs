@@ -44,17 +44,15 @@ impl CmdArgs {
         let mut rng = rand::thread_rng();
         let area_name = format!("generated_area_{}", rng.gen_range(0..u16::MAX));
         let mut area_ids = vec![];
-        let mut id = def.max_id();
+        let mut id = def.max_id() + 1;
         let mut col = Color::random();
         let rgb_shift = RGBShift::random();
 
-        default_file.contents.mutate_kv("max_provs", |kv| {
+        default_file.contents.mutate_kv("max_provinces", |kv| {
             kv.set_value(id + self.count)
         });
 
         for _ in 0..self.count {
-            id += 1;
-
             def.push(id, col, name.clone());
 
             area_ids.push(Field::new_literal(id));
@@ -69,6 +67,7 @@ impl CmdArgs {
             }
 
             col.shift(rgb_shift);
+            id += 1;
         }
 
         area_file.contents.push(Field::new(area_name, Object::new(area_ids, 1)));
