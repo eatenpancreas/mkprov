@@ -1,16 +1,14 @@
-use clap::Args;
+
 use serde::{Deserialize, Serialize};
 use std::env::current_exe;
-use std::fs;
+use std::{fs, io};
 use std::path::PathBuf;
 use std::process::exit;
 
-#[derive(Debug, Args, Serialize, Deserialize, Default, Clone)]
+#[derive(Serialize, Deserialize)]
 pub struct Config {
-    #[arg(short, long)]
     #[serde(rename = "mod-directory")]
     mod_directory: Option<String>,
-    #[arg(short, long)]
     #[serde(rename = "game-directory")]
     game_directory: Option<String>,
 }
@@ -76,16 +74,20 @@ impl Config {
         return field.as_ref().unwrap();
     }
 
-    pub fn save(&self) {
-        let pbuf = current_config_file();
-        let path = pbuf.as_path();
+    pub fn save(&self) -> bool {
+        let p_buf = if let Some(x) = current_config_file().ok() {
+            x
+        } else {
+            return false
+        };
+        let path = p_buf.as_path();
         fs::write(path, toml::to_string(self).unwrap()).unwrap();
     }
 }
 
-fn current_config_file() -> PathBuf {
-    let mut pbuf = current_exe().ok().unwrap();
-    pbuf.pop();
-    pbuf.push("mkprov_config.toml");
-    pbuf
+fn current_config_file() -> io::Result<PathBuf> {
+    let mut p_buf = current_exe()?;
+    p_buf.pop();
+    p_buf.push("mkprov_config.toml");
+    p_buf
 }
