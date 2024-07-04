@@ -34,6 +34,17 @@ pub enum ConfigError {
     TomlSerializeError(#[from] toml::ser::Error),
 }
 
+impl Display for ConfigError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ConfigError::IoError(e) => write!(f, "{}", e),
+            ConfigError::FromUtf8Error(e) => write!(f, "{}", e),
+            ConfigError::TomlDeserializeError(e) => write!(f, "{}", e),
+            ConfigError::TomlSerializeError(e) => write!(f, "{}", e),
+        }
+    }
+}
+
 impl Config {
     pub fn current() -> Result<Config, ConfigError> {
         let p_buf = current_config_file()?;
@@ -52,6 +63,7 @@ impl Config {
         let Config {
             mod_directory,
             game_directory,
+            ..
         } = self;
         println!("[mod-directory]: {mod_directory:?}");
         println!("[game-directory]: {game_directory:?}");

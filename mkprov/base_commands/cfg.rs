@@ -16,7 +16,7 @@ pub struct ConfigArgs {
     game_directory: Option<String>,
 }
 
-#[derive(Debug, Subcommand, Clone)]
+#[derive(Debug, Subcommand)]
 pub enum Method {
     /// sets configs if mentioned
     Set(ConfigArgs),
@@ -30,21 +30,27 @@ impl CmdArgs {
     pub fn run(self) {
         match self.method {
             Method::Set(cfg) => {
-                let mut current_config = Config::current();
-                current_config.set_fields(cfg);
+                let mut current_config = Config::current().unwrap();
+                if let Some(dir) = cfg.game_directory {
+                    current_config.set_game_directory(Some(dir));
+                }
+                if let Some(dir) = cfg.mod_directory {
+                    current_config.set_mod_directory(Some(dir));
+                }
                 current_config.save();
 
                 println!("Saved changes!");
             }
             Method::OverrideAll(cfg) => {
-                let mut current_config = Config::current();
-                current_config.override_all_fields(cfg);
+                let mut current_config = Config::current().unwrap();
+                current_config.set_game_directory(cfg.game_directory);
+                current_config.set_mod_directory(cfg.mod_directory);
                 current_config.save();
 
                 println!("Saved changes!");
             }
             Method::Echo => {
-                let current_config = Config::current();
+                let current_config = Config::current().unwrap();
                 current_config.echo_all_fields();
             }
         }
