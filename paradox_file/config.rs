@@ -2,13 +2,13 @@
 use serde::{Deserialize, Serialize};
 use std::env::current_exe;
 use std::{fs, io};
+use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
-use std::process::exit;
-use csv::Utf8Error;
+use std::string::{FromUtf8Error};
 use thiserror::Error;
 use crate::if_err;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct Config {
     #[serde(rename = "mod-directory")]
     mod_directory: Option<String>,
@@ -19,10 +19,16 @@ pub struct Config {
 #[derive(Debug)]
 pub struct RequireError(String);
 
+impl Display for RequireError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 #[derive(Error, Debug)]
 pub enum ConfigError {
     IoError(#[from] io::Error),
-    Utf8Error(#[from] Utf8Error),
+    FromUtf8Error(#[from] FromUtf8Error),
     TomlDeserializeError(#[from] toml::de::Error),
     TomlSerializeError(#[from] toml::ser::Error),
 }

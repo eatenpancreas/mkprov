@@ -21,7 +21,8 @@ impl DefinitionCsv {
         let kvs = sort_hashmap(&self.rows);
 
         for (key, value) in kvs {
-            x.push_str(format!("{};{};{};{};{};x\n", key, value.color.r(), value.color.g(), value.color.b(), value.name).as_str())
+            x.push_str(format!("{};{};{};{};{};x\n", 
+                key, value.color.r(), value.color.g(), value.color.b(), value.name).as_str())
         }
 
         if !self.file.write_contents(&x) {
@@ -47,7 +48,8 @@ impl DefinitionCsv {
     }
 
     pub fn load(cfg: &Config) -> Result<DefinitionCsv, LocalisationFileError> {
-        let (lines, title, file) = load_csv(cfg, "map", "definition.csv")?;
+        let (lines, title, file) = 
+          load_csv(cfg, "map", "definition.csv")?;
         let mut rows = HashMap::new();
 
         for line in lines {
@@ -78,8 +80,11 @@ impl DefinitionCsv {
     }
 }
 
-fn load_csv(cfg: &Config, sub_directory: &str, filename: &str) -> Result<(Vec<Vec<String>>, String, LocalFile), LocalisationFileError> {
-    let file = LocalFile::get_file(cfg.require_mod_directory(), sub_directory, &filename).unwrap();
+fn load_csv(
+    cfg: &Config, sub_directory: &str, filename: &str
+) -> Result<(Vec<Vec<String>>, String, LocalFile), LocalisationFileError> {
+    let file = LocalFile::get_file(
+        cfg.require_mod_directory()?, sub_directory, &filename).unwrap();
     let contents_str = file.get_contents()?;
     let mut contents = contents_str.split('\n');
     let title = contents.next().ok_or(LocalisationFileError::UnexpectedFormat)?.to_string();

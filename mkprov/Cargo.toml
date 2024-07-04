@@ -13,3 +13,4 @@ path = "main.rs"
 clap = { version = "4.5.4", features = ["derive"] }
 rand = "0.9.0-alpha.1"
 paradox_file = { path = "../paradox_file" }
+inquire = "0.7.5"

@@ -7,6 +7,7 @@ mod base_commands {
 }
 
 use clap::{Parser, Subcommand};
+use inquire::Confirm;
 use paradox_file::Config;
 
 /// CLI-interface to create and edit Paradox files.
@@ -30,8 +31,23 @@ enum Command {
 }
 
 fn main() {
-    let config = Config::current();
-    
+    let mut config = Config::current().unwrap();
+    if config.is_first_time {
+        let ans = Confirm::new(
+            "mkprov is a tool designed for total overhaul mods for eu4.\
+            There are a couple issues, particularly it'll modify files in the mod for convenience.\
+            There is currently no support for comments, and as it modifies files it will gradually \
+            delete all comments in files it touches. Make sure you are okay with this before using \
+            the tool."
+        )
+          .with_default(false)
+          .with_help_message("Are you okay with this?")
+          .prompt().unwrap_or(false);
+        
+        if !ans { return; }
+        config.is_first_time = false;
+        config.save();
+    }
     
     match Args::parse().command {
         Command::Prov(args) => args.run(),

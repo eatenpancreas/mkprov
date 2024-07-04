@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::io;
 use thiserror::Error;
-use crate::Config;
+use crate::{Config, RequireError};
 use crate::files::LocalFile;
 
 #[derive(Debug)]
@@ -22,7 +22,9 @@ pub enum LocalisationFileError {
   #[error("Something went wrong with getting files")]
   IoError(#[from] io::Error),
   #[error("Unexpected YML format")]
-  UnexpectedFormat
+  UnexpectedFormat,
+  #[error(transparent)]
+  RequireError(#[from] RequireError)
 }
 
 impl LocalisationFile {
@@ -57,7 +59,7 @@ impl LocalisationFile {
   }
   
   fn load(cfg: &Config, sub_directory: &str, filename: &str) -> Result<Self, LocalisationFileError> {
-    let file = LocalFile::get_file(cfg.require_mod_directory(), sub_directory, &filename)?;
+    let file = LocalFile::get_file(cfg.require_mod_directory()?, sub_directory, &filename)?;
     let contents_str = file.get_contents()?;
     let mut contents = contents_str.split('\n');
     let mut title = contents.next().ok_or(LocalisationFileError::UnexpectedFormat)?.to_string();

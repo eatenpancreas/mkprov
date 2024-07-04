@@ -1,6 +1,9 @@
 use std::io;
 use thiserror::Error;
-use crate::{AsFilename, Config, LexerError, LocalFile, Object, Parser, ParserError};
+use crate::{
+    AsFilename, Config, LexerError, LocalFile, 
+    Object, Parser, ParserError, RequireError
+};
 
 pub struct PdxFile {
     pub contents: Object,
@@ -16,7 +19,9 @@ pub enum PdxFileError {
     #[error("File is not present in mod or base-game")]
     FileNotPresent,
     #[error("Something went wrong with getting files")]
-    IoError(#[from] io::Error)
+    IoError(#[from] io::Error),
+    #[error(transparent)]
+    RequireError(#[from] RequireError)
 }
 
 impl PdxFile {
@@ -39,10 +44,10 @@ impl PdxFile {
         let file_contents;
         
         if let Ok(mod_file) = LocalFile::get_file(
-            cfg.require_mod_directory(), sub_directory, filename
+            cfg.require_mod_directory()?, sub_directory, filename
         ) { file_contents = mod_file.get_contents()?; }
         else if let Ok(game_file) = LocalFile::get_file(
-            cfg.require_game_directory(), sub_directory, filename
+            cfg.require_game_directory()?, sub_directory, filename
         ) { file_contents = game_file.get_contents()?; } 
         else {
             return Err(PdxFileError::FileNotPresent)
@@ -60,18 +65,18 @@ impl PdxFile {
         let file_contents;
         let file;
         if let Ok(mod_file) = LocalFile::get_file(
-            cfg.require_mod_directory(), sub_directory, filename
+            cfg.require_mod_directory()?, sub_directory, filename
         ) {
             file_contents = mod_file.get_contents()?;
             file = mod_file;
         } else if let Ok(filename) = LocalFile::get_filename(
-            cfg.require_game_directory(), sub_directory, filename
+            cfg.require_game_directory()?, sub_directory, filename
         ) {
             let game_file = LocalFile::get_file(
-                cfg.require_game_directory(), sub_directory, &filename)?;
+                cfg.require_game_directory()?, sub_directory, &filename)?;
             file_contents = game_file.get_contents()?;
             let mod_file = LocalFile::get_file(
-                cfg.require_mod_directory(), sub_directory, &filename)?;
+                cfg.require_mod_directory()?, sub_directory, &filename)?;
             mod_file.write_contents(&file_contents);
             file = mod_file;
         } else {
