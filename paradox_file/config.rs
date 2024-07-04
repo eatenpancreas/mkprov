@@ -4,6 +4,8 @@ use std::env::current_exe;
 use std::{fs, io};
 use std::path::PathBuf;
 use std::process::exit;
+use csv::Utf8Error;
+use thiserror::Error;
 use crate::if_err;
 
 #[derive(Serialize, Deserialize)]
@@ -14,41 +16,32 @@ pub struct Config {
     game_directory: Option<String>,
 }
 
+#[derive(Debug)]
 pub struct RequireError(String);
 
+#[derive(Error, Debug)]
+pub enum ConfigError {
+    IoError(#[from] io::Error),
+    Utf8Error(#[from] Utf8Error),
+    TomlDeserializeError(#[from] toml::de::Error),
+    TomlSerializeError(#[from] toml::ser::Error),
+}
+
 impl Config {
-    pub fn current() -> Config {
-        let p_buf = current_config_file();
+    pub fn current() -> Result<Config, ConfigError> {
+        let p_buf = current_config_file()?;
         let path = p_buf.as_path();
         if let Ok(true) = path.try_exists() {
-            let file = String::from_utf8(fs::read(path).unwrap()).unwrap();
-            toml::from_str(file.as_str()).unwrap()
+            let file = String::from_utf8(fs::read(path)?)?;
+            Ok(toml::from_str(file.as_str())?)
         } else {
             let cfg = Config::default();
-            fs::write(path, toml::to_string(&cfg).unwrap()).unwrap();
-            cfg
+            fs::write(path, toml::to_string(&cfg)?)?;
+            Ok(cfg)
         }
     }
 
-    pub fn set_fields(&mut self, other: Config) {
-        let Config {
-            mod_directory,
-            game_directory,
-        } = other;
-
-        if let Some(cfg) = mod_directory {
-            self.mod_directory = Some(cfg)
-        }
-        if let Some(cfg) = game_directory {
-            self.game_directory = Some(cfg)
-        }
-    }
-
-    pub fn override_all_fields(&mut self, other: Config) {
-        *self = other
-    }
-
-    pub fn echo_all_fields(self) {
+    pub fn echo_all_fields(&self) {
         let Config {
             mod_directory,
             game_directory,
@@ -60,9 +53,15 @@ impl Config {
     pub fn require_mod_directory(&self) -> Result<&String, RequireError> {
         Self::require(&self.mod_directory, "mod-directory")
     }
+    pub fn set_mod_directory(&mut self, to: Option<String>) {
+        self.mod_directory = to;
+    }
 
     pub fn require_game_directory(&self) -> Result<&String, RequireError> {
         Self::require(&self.game_directory, "game-directory")
+    }
+    pub fn set_game_directory(&mut self, to: Option<String>) {
+        self.game_directory = to;
     }
 
     fn require<'a, T>(field: &'a Option<T>, name: &str) -> Result<&'a T, RequireError> {
@@ -83,5 +82,5 @@ fn current_config_file() -> io::Result<PathBuf> {
     let mut p_buf = current_exe()?;
     p_buf.pop();
     p_buf.push("mkprov_config.toml");
-    p_buf
+    Ok(p_buf)
 }
