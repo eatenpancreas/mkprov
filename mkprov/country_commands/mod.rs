@@ -1,5 +1,4 @@
 use clap::{Args, Subcommand};
-use self::Command::*;
 
 #[derive(Debug, Args)]
 pub struct GroupArgs {

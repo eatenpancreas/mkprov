@@ -13,7 +13,7 @@ pub struct CmdArgs {
 
 impl CmdArgs {
     pub fn run(self) {
-        let cfg = Config::current();
+        let cfg = Config::current().unwrap();
         let mut file = PdxFile::pull(
             &cfg, "history/provinces/", &Id(self.prov_id)).unwrap();
 

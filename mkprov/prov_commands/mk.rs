@@ -29,8 +29,8 @@ pub struct CmdArgs {
 
 impl CmdArgs {
     pub fn run(self) {
-        let cfg = Config::current();
-        let dir = cfg.require_mod_directory();
+        let cfg = Config::current().unwrap();
+        let dir = cfg.require_mod_directory().unwrap();
 
         let province = province_def(&self);
         let name = &self.name;

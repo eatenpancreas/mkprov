@@ -26,7 +26,7 @@ pub enum Method {
 
 impl CmdArgs {
   pub fn run(self) {
-    let cfg = Config::current();
+    let cfg = Config::current().unwrap();
 
     let (name, prov_id, key) = match self.method {
       Method::Culture { culture, prov_id } => (culture, prov_id, "culture"),

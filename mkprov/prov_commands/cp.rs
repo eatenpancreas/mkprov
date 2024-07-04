@@ -19,7 +19,7 @@ pub struct CmdArgs {
 
 impl CmdArgs {
     pub fn run(self) {
-        let cfg = Config::current();
+        let cfg = Config::current().unwrap();
         let from = PdxFile::inspect(
             &cfg, "history/provinces/", &Id(self.from_prov_id)).unwrap();
         let mut file = PdxFile::pull(
@@ -32,10 +32,10 @@ impl CmdArgs {
         println!("Copied successfully!");
 
         if self.with_area {
-            mv_area::run(mv_area::CmdArgs {
+            mv_area::CmdArgs {
                 from_prov_id: self.from_prov_id,
                 to_prov_id: self.to_prov_id
-            })
+            }.run()
         }
     }
 }

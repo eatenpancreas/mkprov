@@ -21,7 +21,7 @@ pub struct CmdArgs {
 
 impl CmdArgs {
   pub fn run(self) {
-    let cfg = Config::current();
+    let cfg = Config::current().unwrap();
     let mut yml = LocalisationFile::load_localisation(&cfg).unwrap();
     yml.replace_or_add_key_name(self.prov_id, self.rename_into.clone(), self.priority);
     yml.save();
