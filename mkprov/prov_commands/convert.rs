@@ -1,6 +1,6 @@
 use clap::{Args, Subcommand};
 use paradox_file::{Config, PdxFile};
-use crate::common::Id;
+use crate::common::ProvId;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
@@ -25,8 +25,7 @@ pub enum Method {
 }
 
 impl CmdArgs {
-  pub fn run(self) {
-    let cfg = Config::current().unwrap();
+  pub fn run(self, cfg: &Config) {
 
     let (name, prov_id, key) = match self.method {
       Method::Culture { culture, prov_id } => (culture, prov_id, "culture"),
@@ -34,7 +33,7 @@ impl CmdArgs {
     };
 
     let mut file = PdxFile::pull(
-      &cfg, "history/provinces/", &Id(prov_id)).unwrap();
+      &cfg, "history/provinces/", &ProvId(prov_id)).unwrap();
 
     if !file.contents.mutate_kv(key, |kv| kv.set_value(&name)) {
       file.contents.insert_kv(0, key, &name);

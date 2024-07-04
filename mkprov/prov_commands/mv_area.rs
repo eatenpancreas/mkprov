@@ -11,8 +11,7 @@ pub struct CmdArgs {
 }
 
 impl CmdArgs {
-    pub fn run(self) {
-        let cfg = Config::current().unwrap();
+    pub fn run(self, cfg: &Config) {
         let mut file = PdxFile::pull(&cfg, "map/", &"area.txt").unwrap();
 
         let mut areas = file.contents.get_child_objects_mut();

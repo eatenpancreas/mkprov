@@ -31,21 +31,14 @@ impl Display for RequireError {
 
 #[derive(Error, Debug)]
 pub enum ConfigError {
+    #[error("File error occurred")]
     IoError(#[from] io::Error),
+    #[error("Config was not in UTF8")]
     FromUtf8Error(#[from] FromUtf8Error),
+    #[error("TOML was not able to be deserialized")]
     TomlDeserializeError(#[from] toml::de::Error),
+    #[error("TOML was not able to be serialized")]
     TomlSerializeError(#[from] toml::ser::Error),
-}
-
-impl Display for ConfigError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ConfigError::IoError(e) => write!(f, "{}", e),
-            ConfigError::FromUtf8Error(e) => write!(f, "{}", e),
-            ConfigError::TomlDeserializeError(e) => write!(f, "{}", e),
-            ConfigError::TomlSerializeError(e) => write!(f, "{}", e),
-        }
-    }
 }
 
 impl Config {

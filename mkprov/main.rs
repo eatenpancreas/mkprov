@@ -31,8 +31,8 @@ enum Command {
 }
 
 fn main() {
-    let mut config = Config::current().unwrap();
-    if config.is_first_time {
+    let mut cfg = Config::current().unwrap();
+    if cfg.is_first_time {
         let ans = Confirm::new(
             "Are you sure you want to use mkprov for modding?"
         )
@@ -44,14 +44,14 @@ fn main() {
           .prompt().unwrap_or(false);
         
         if !ans { return; }
-        config.is_first_time = false;
-        config.save();
+        cfg.is_first_time = false;
+        cfg.save();
     }
     
     match Args::parse().command {
-        Command::Prov(args) => args.run(),
-        Command::Country(args) => args.run(),
+        Command::Prov(args) => args.run(&cfg),
+        Command::Country(args) => args.run(&cfg),
         
-        Command::Cfg(args) => args.run(),
+        Command::Cfg(args) => args.run(&mut cfg),
     };
 }

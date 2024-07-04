@@ -15,7 +15,7 @@ pub struct DefinitionRow {
 }
 
 impl DefinitionCsv {
-    pub fn save(&self) {
+    pub fn save(&self) -> bool {
         let mut x = self.title.to_string();
         x.push('\n');
         let kvs = sort_hashmap(&self.rows);
@@ -25,9 +25,7 @@ impl DefinitionCsv {
                 key, value.color.r(), value.color.g(), value.color.b(), value.name).as_str())
         }
 
-        if !self.file.write_contents(&x) {
-            println!("Failed to save {:?}", self.file.path)
-        }
+        self.file.write_contents(&x)
     }
 
     pub fn max_id(&self) -> u16 {

@@ -1,4 +1,5 @@
 use clap::{Args, Subcommand};
+use paradox_file::Config;
 
 #[derive(Debug, Args)]
 pub struct GroupArgs {
@@ -12,7 +13,7 @@ pub enum Command {
 }
 
 impl GroupArgs {
-  pub fn run(self) {
+  pub fn run(self, _cfg: &Config) {
     match self.cmd {
       
     }

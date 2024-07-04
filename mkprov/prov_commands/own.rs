@@ -1,6 +1,6 @@
 use clap::Args;
 use paradox_file::{Config, PdxFile};
-use crate::common::Id;
+use crate::common::ProvId;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
@@ -12,10 +12,9 @@ pub struct CmdArgs {
 }
 
 impl CmdArgs {
-    pub fn run(self) {
-        let cfg = Config::current().unwrap();
+    pub fn run(self, cfg: &Config) {
         let mut file = PdxFile::pull(
-            &cfg, "history/provinces/", &Id(self.prov_id)).unwrap();
+            &cfg, "history/provinces/", &ProvId(self.prov_id)).unwrap();
 
         let tag = self.owner_tag.to_uppercase();
 

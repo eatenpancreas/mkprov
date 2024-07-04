@@ -27,31 +27,28 @@ pub enum Method {
 }
 
 impl CmdArgs {
-    pub fn run(self) {
+    pub fn run(self, cfg: &mut Config) {
         match self.method {
-            Method::Set(cfg) => {
-                let mut current_config = Config::current().unwrap();
-                if let Some(dir) = cfg.game_directory {
-                    current_config.set_game_directory(Some(dir));
+            Method::Set(args) => {
+                if let Some(dir) = args.game_directory {
+                    cfg.set_game_directory(Some(dir));
                 }
-                if let Some(dir) = cfg.mod_directory {
-                    current_config.set_mod_directory(Some(dir));
+                if let Some(dir) = args.mod_directory {
+                    cfg.set_mod_directory(Some(dir));
                 }
-                current_config.save();
+                cfg.save();
 
                 println!("Saved changes!");
             }
-            Method::OverrideAll(cfg) => {
-                let mut current_config = Config::current().unwrap();
-                current_config.set_game_directory(cfg.game_directory);
-                current_config.set_mod_directory(cfg.mod_directory);
-                current_config.save();
+            Method::OverrideAll(args) => {
+                cfg.set_game_directory(args.game_directory);
+                cfg.set_mod_directory(args.mod_directory);
+                cfg.save();
 
                 println!("Saved changes!");
             }
             Method::Echo => {
-                let current_config = Config::current().unwrap();
-                current_config.echo_all_fields();
+                cfg.echo_all_fields();
             }
         }
     }

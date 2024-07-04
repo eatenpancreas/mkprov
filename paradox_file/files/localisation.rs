@@ -32,7 +32,7 @@ impl LocalisationFile {
     Self::load(cfg, "localisation", "vap_prov_names_l_english.yml")
   }
   
-  pub fn save(&self) {
+  pub fn save(&self) -> bool {
     let mut x = self.title.to_string();
     x.push_str(":\n");
     let kvs = sort_hashmap(&self.key_vals);
@@ -41,9 +41,7 @@ impl LocalisationFile {
       x.push_str(format!(" PROV{}:{} \"{}\"\n", key, value.prio, value.name).as_str())
     }
     
-    if !self.file.write_contents(&x) {
-      println!("Failed to save {:?}", self.file.path)
-    }
+    self.file.write_contents(&x)
   }
   
   pub fn replace_or_add_key_name(&mut self, key: u16, name: String, prio: Option<u8>) {

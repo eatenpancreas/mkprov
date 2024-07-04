@@ -1,4 +1,5 @@
 use clap::{Args, Subcommand};
+use paradox_file::Config;
 
 pub mod own;
 pub mod cp;
@@ -33,14 +34,14 @@ pub enum Command {
 }
 
 impl GroupArgs {
-  pub fn run(self) {
+  pub fn run(self, cfg: &Config) {
     match self.cmd {
-      Mk(args) => args.run(),
-      Own(args) => args.run(),
-      Cp(args) => args.run(),
-      MvArea(args) => args.run(),
-      Rn(args) => args.run(),
-      Convert(args) => args.run(),
+      Mk(args) => args.run(cfg),
+      Own(args) => args.run(cfg),
+      Cp(args) => args.run(cfg),
+      MvArea(args) => args.run(cfg),
+      Rn(args) => args.run(cfg),
+      Convert(args) => args.run(cfg),
     }
   }
 }

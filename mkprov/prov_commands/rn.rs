@@ -1,6 +1,6 @@
 use clap::Args;
 use paradox_file::{Config, PdxFile, LocalisationFile, DefinitionCsv};
-use crate::common::Id;
+use crate::common::ProvId;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
@@ -20,8 +20,7 @@ pub struct CmdArgs {
 }
 
 impl CmdArgs {
-  pub fn run(self) {
-    let cfg = Config::current().unwrap();
+  pub fn run(self, cfg: &Config) {
     let mut yml = LocalisationFile::load_localisation(&cfg).unwrap();
     yml.replace_or_add_key_name(self.prov_id, self.rename_into.clone(), self.priority);
     yml.save();
@@ -31,7 +30,7 @@ impl CmdArgs {
     def.save();
 
     let mut file = PdxFile::pull(
-      &cfg, "history/provinces/", &Id(self.prov_id)).unwrap();
+      &cfg, "history/provinces/", &ProvId(self.prov_id)).unwrap();
 
     if let Some(capital) = self.capital {
       if !file.contents.mutate_kv("capital",

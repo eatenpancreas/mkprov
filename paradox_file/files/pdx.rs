@@ -25,10 +25,8 @@ pub enum PdxFileError {
 }
 
 impl PdxFile {
-    pub fn save(&self) {
-        if !self.file.write_contents(&self.contents.to_string()) {
-            println!("Failed to save {:?}", self.file.path)
-        }
+    pub fn save(&self) -> bool {
+        self.file.write_contents(&self.contents.to_string())
     }
     
     pub fn rename_prov_name(&mut self, id: u16, to: String) -> io::Result<()> {

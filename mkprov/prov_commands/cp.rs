@@ -1,7 +1,7 @@
 
 use clap::Args;
 use paradox_file::{Config, PdxFile};
-use crate::common::Id;
+use crate::common::ProvId;
 use crate::prov_commands::mv_area;
 
 #[derive(Debug, Args)]
@@ -18,12 +18,11 @@ pub struct CmdArgs {
 }
 
 impl CmdArgs {
-    pub fn run(self) {
-        let cfg = Config::current().unwrap();
+    pub fn run(self, cfg: &Config) {
         let from = PdxFile::inspect(
-            &cfg, "history/provinces/", &Id(self.from_prov_id)).unwrap();
+            &cfg, "history/provinces/", &ProvId(self.from_prov_id)).unwrap();
         let mut file = PdxFile::pull(
-            &cfg, "history/provinces/", &Id(self.to_prov_id)).unwrap();
+            &cfg, "history/provinces/", &ProvId(self.to_prov_id)).unwrap();
 
         file.contents = from;
 
@@ -35,7 +34,7 @@ impl CmdArgs {
             mv_area::CmdArgs {
                 from_prov_id: self.from_prov_id,
                 to_prov_id: self.to_prov_id
-            }.run()
+            }.run(cfg)
         }
     }
 }

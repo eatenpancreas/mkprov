@@ -11,7 +11,7 @@ pub use definition::*;
 use std::{fs, io};
 use std::io::{ErrorKind};
 use std::path::PathBuf;
-
+use crate::{IntoError, IntoResult};
 
 #[derive(Debug)]
 pub(crate) struct LocalFile {
@@ -29,7 +29,7 @@ impl LocalFile {
     let prev = self.path.clone();
 
     let filename = self.path.file_name().ok_or(
-      io::Error::new(ErrorKind::InvalidData, "Filename could not be read")
+      ErrorKind::InvalidData.into_error("Filename could not be read")
     )?.to_str().and_then(|x| Some(x.to_string()));
     self.path.pop();
     self.path.push(convert_name(filename));
@@ -69,7 +69,7 @@ impl LocalFile {
           if ok { return Ok(str.to_string()) }
         }
 
-        Err(io::Error::new(ErrorKind::Unsupported, "File was not encoded in utf8 or ANSI"))
+        ErrorKind::Unsupported.into_result("File was not encoded in utf8 or ANSI")
       }
     }
   }

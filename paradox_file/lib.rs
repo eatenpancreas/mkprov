@@ -5,7 +5,8 @@ mod parsed_structure;
 mod files;
 mod config;
 mod color;
-mod ifnone;
+mod if_none;
+mod as_io_err;
 
 pub use parser::*;
 pub use lexer::*;
@@ -14,6 +15,7 @@ pub use files::*;
 pub use parsed_structure::*;
 pub use config::*;
 pub use color::*;
+pub use as_io_err::*;
 
 #[derive(Debug, PartialEq)]
 pub enum Literal {
