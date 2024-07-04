@@ -14,9 +14,10 @@ pub struct Config {
     mod_directory: Option<String>,
     #[serde(rename = "game-directory")]
     game_directory: Option<String>,
+    pub is_first_time: bool,
 }
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub struct RequireError(String);
 
 impl Display for RequireError {
