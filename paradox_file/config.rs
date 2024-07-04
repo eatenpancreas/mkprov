@@ -4,6 +4,7 @@ use std::env::current_exe;
 use std::{fs, io};
 use std::path::PathBuf;
 use std::process::exit;
+use crate::if_err;
 
 #[derive(Serialize, Deserialize)]
 pub struct Config {
@@ -12,6 +13,8 @@ pub struct Config {
     #[serde(rename = "game-directory")]
     game_directory: Option<String>,
 }
+
+pub struct RequireError(String);
 
 impl Config {
     pub fn current() -> Config {
@@ -54,34 +57,25 @@ impl Config {
         println!("[game-directory]: {game_directory:?}");
     }
 
-    pub fn require_mod_directory(&self) -> &String {
+    pub fn require_mod_directory(&self) -> Result<&String, RequireError> {
         Self::require(&self.mod_directory, "mod-directory")
     }
 
-    pub fn require_game_directory(&self) -> &String {
+    pub fn require_game_directory(&self) -> Result<&String, RequireError> {
         Self::require(&self.game_directory, "game-directory")
     }
 
-    fn require<'a, T>(field: &'a Option<T>, name: &str) -> &'a T {
-        if field.is_none() {
-            eprintln!(
-                "Config field {name} is required for this command to work. \
+    fn require<'a, T>(field: &'a Option<T>, name: &str) -> Result<&'a T, RequireError> {
+        field.as_ref().ok_or(RequireError(format!(
+            "Config field {name} is required for this command to work. \
             (try running mkprov cfg set --{name} my_value)"
-            );
-            exit(1);
-        }
-
-        return field.as_ref().unwrap();
+        )))
     }
 
     pub fn save(&self) -> bool {
-        let p_buf = if let Some(x) = current_config_file().ok() {
-            x
-        } else {
-            return false
-        };
+        let p_buf = if_err!(current_config_file());
         let path = p_buf.as_path();
-        fs::write(path, toml::to_string(self).unwrap()).unwrap();
+        fs::write(path, if_err!(toml::to_string(self))).is_ok()
     }
 }
 
