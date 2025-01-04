@@ -1,9 +1,10 @@
-
 use clap::Args;
+use paradox_file::{Color, DefinitionCsv, Field, Object, PdxFile, RGBShift};
+use rand::Rng;
 use std::fs::File;
 use std::io::Write;
-use rand::Rng;
-use paradox_file::{Color, Config, DefinitionCsv, Field, Object, PdxFile, RGBShift};
+
+use crate::cli_data::CliData;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
@@ -28,29 +29,28 @@ pub struct CmdArgs {
 }
 
 impl CmdArgs {
-    pub fn run(self, cfg: &Config) {
+    pub fn run(self, cli: &CliData) {
+        let cfg = &cli.config;
         let dir = cfg.require_mod_directory().unwrap();
 
         let province = province_def(&self);
         let name = &self.name;
 
-        let mut area_file = PdxFile::pull(
-            &cfg, "map/", &"area.txt").unwrap();
-        let mut default_file = PdxFile::pull(
-            &cfg, "map/", &"default.map").unwrap();
+        let mut area_file = PdxFile::pull(&cfg, "map/", &"area.txt").unwrap();
+        let mut default_file = PdxFile::pull(&cfg, "map/", &"default.map").unwrap();
 
         let mut def = DefinitionCsv::load(&cfg).unwrap();
 
-        let mut rng = rand::thread_rng();
-        let area_name = format!("generated_area_{}", rng.gen_range(0..u16::MAX));
+        let mut rng = rand::rng();
+        let area_name = format!("generated_area_{}", rng.random_range(0..u16::MAX));
         let mut area_ids = vec![];
         let mut id = def.max_id() + 1;
         let mut col = Color::random();
         let rgb_shift = RGBShift::random();
 
-        default_file.contents.mutate_kv("max_provinces", |kv| {
-            kv.set_value(id + self.count)
-        });
+        default_file
+            .contents
+            .mutate_kv("max_provinces", |kv| kv.set_value(id + self.count));
 
         for _ in 0..self.count {
             def.push(id, col, name.clone());
@@ -70,20 +70,22 @@ impl CmdArgs {
             id += 1;
         }
 
-        area_file.contents.push(Field::new(area_name, Object::new(area_ids, 1)));
+        area_file
+            .contents
+            .push(Field::new(area_name, Object::new(area_ids, 1)));
         area_file.save();
         default_file.save();
         def.save();
     }
 }
 
-
 pub fn province_def(args: &CmdArgs) -> String {
     let culture = &args.culture;
     let religion = &args.religion;
     let capital = &args.capital;
 
-    format!(r#"
+    format!(
+        r#"
 culture = {culture}
 religion = {religion}
 capital = {capital}
@@ -95,5 +97,6 @@ base_manpower = 1
 native_size = 90
 native_ferocity = 4
 native_hostileness = 12
-"#)
+"#
+    )
 }

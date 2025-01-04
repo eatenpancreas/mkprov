@@ -1,4 +1,3 @@
-
 use rand::Rng;
 
 #[derive(Copy, Clone, Debug)]
@@ -8,14 +7,14 @@ pub struct Color([u8; 3]);
 pub enum RGBShift {
     R,
     G,
-    B
+    B,
 }
 
 impl RGBShift {
     pub fn random() -> RGBShift {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
-        match rng.gen_range(0..3) {
+        match rng.random_range(0..3) {
             0 => RGBShift::R,
             1 => RGBShift::G,
             _ => RGBShift::B,
@@ -25,11 +24,11 @@ impl RGBShift {
 
 impl Color {
     pub fn random() -> Color {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         Color([
-            rng.gen_range(0..=255),
-            rng.gen_range(0..=255),
-            rng.gen_range(0..=255),
+            rng.random_range(0..=255),
+            rng.random_range(0..=255),
+            rng.random_range(0..=255),
         ])
     }
 

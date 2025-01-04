@@ -1,6 +1,6 @@
-
 use clap::{Args, Subcommand};
-use paradox_file::Config;
+
+use crate::cli_data::CliData;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
@@ -27,31 +27,29 @@ pub enum Method {
 }
 
 impl CmdArgs {
-    pub fn run(self, cfg: &mut Config) {
+    pub fn run(self, cli: &mut CliData) {
         match self.method {
             Method::Set(args) => {
                 if let Some(dir) = args.game_directory {
-                    cfg.set_game_directory(Some(dir));
+                    cli.config.set_game_directory(Some(dir));
                 }
                 if let Some(dir) = args.mod_directory {
-                    cfg.set_mod_directory(Some(dir));
+                    cli.config.set_mod_directory(Some(dir));
                 }
-                cfg.save();
+                cli.config.save();
 
                 println!("Saved changes!");
             }
             Method::OverrideAll(args) => {
-                cfg.set_game_directory(args.game_directory);
-                cfg.set_mod_directory(args.mod_directory);
-                cfg.save();
+                cli.config.set_game_directory(args.game_directory);
+                cli.config.set_mod_directory(args.mod_directory);
+                cli.config.save();
 
                 println!("Saved changes!");
             }
             Method::Echo => {
-                cfg.echo_all_fields();
+                cli.config.echo_all_fields();
             }
         }
     }
 }
-
-

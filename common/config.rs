@@ -1,20 +1,18 @@
-
 use serde::{Deserialize, Serialize};
 use std::env::current_exe;
-use std::{fs, io};
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
-use std::string::{FromUtf8Error};
+use std::string::FromUtf8Error;
+use std::{fs, io};
 use thiserror::Error;
-use crate::if_err;
 
-fn default_true() -> bool { true }
+fn default_true() -> bool {
+    true
+}
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Config {
-    #[serde(rename = "mod-directory")]
     mod_directory: Option<String>,
-    #[serde(rename = "game-directory")]
     game_directory: Option<String>,
     #[serde(default = "default_true")]
     pub is_first_time: bool,
@@ -61,14 +59,18 @@ impl Config {
             game_directory,
             ..
         } = self;
-        
-        println!("[mod-directory]: {}", 
-            Self::echo_str(mod_directory).unwrap_or(""));
-        println!("[game-directory]: {}", 
-            Self::echo_str(game_directory).unwrap_or(""));
+
+        println!(
+            "[mod-directory]: {}",
+            Self::echo_str(mod_directory).unwrap_or("")
+        );
+        println!(
+            "[game-directory]: {}",
+            Self::echo_str(game_directory).unwrap_or("")
+        );
     }
-    
-    fn echo_str(string: &Option<String>) -> Option<&str> { 
+
+    fn echo_str(string: &Option<String>) -> Option<&str> {
         string.as_ref().and_then(|x| Some(x.as_str()))
     }
 
@@ -94,9 +96,18 @@ impl Config {
     }
 
     pub fn save(&self) -> bool {
-        let p_buf = if_err!(current_config_file());
-        let path = p_buf.as_path();
-        fs::write(path, if_err!(toml::to_string(self))).is_ok()
+        let p_buf = if let Ok(pb) = current_config_file() {
+            pb
+        } else {
+            return false;
+        };
+        let content = if let Ok(pb) = toml::to_string(self) {
+            pb
+        } else {
+            return false;
+        };
+
+        fs::write(p_buf.as_path(), content).is_ok()
     }
 }
 

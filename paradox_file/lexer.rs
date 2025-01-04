@@ -1,5 +1,5 @@
+use crate::Token;
 use thiserror::Error;
-use crate::{Token};
 
 pub struct Lexer {
     cursor: usize,
@@ -9,7 +9,7 @@ pub struct Lexer {
 #[derive(Error, Debug)]
 pub enum LexerError {
     #[error("Parsing error: String did not end until file")]
-    StringNotEnded
+    StringNotEnded,
 }
 
 impl Lexer {
@@ -19,14 +19,16 @@ impl Lexer {
             cursor: 0,
         }
     }
-    
+
     pub fn unwrap_all(self) -> Vec<Token> {
-        self.filter_map(|res| {
-            match res {
-                Ok(token) => Some(token),
-                Err(err) => { eprintln!("{err}"); None }
+        self.filter_map(|res| match res {
+            Ok(token) => Some(token),
+            Err(err) => {
+                eprintln!("{err}");
+                None
             }
-        }).collect()
+        })
+        .collect()
     }
 
     /// Returns the next character (if available) and advances the cursor.
@@ -59,30 +61,32 @@ impl Iterator for Lexer {
         let mut is_comment = false;
         let mut is_string = false;
 
-        if self.peek().is_some_and(|c| *c  == '}') && !is_lit_stringed && content.len() > 0 {
-            return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)))
+        if self.peek().is_some_and(|c| *c == '}') && !is_lit_stringed && content.len() > 0 {
+            return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)));
         }
 
         while let Some(char) = self.pop() {
             // Literal strings defined by " marks
             if *char == '"' && !is_comment {
                 is_string = !is_string;
-                if is_string { is_lit_stringed = true };
+                if is_string {
+                    is_lit_stringed = true
+                };
             } else if *char == '=' && !is_string && !is_comment {
                 content.push(*char);
                 location = self.cursor - 1;
-                return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)))
-            } 
-            else if *char == '#' && !is_string {
+                return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)));
+            } else if *char == '#' && !is_string {
                 is_comment = true
-            } // Enable comment mode
+            }
+            // Enable comment mode
             else if is_comment {
                 // End comments on newlines
                 if *char == '\n' {
                     is_comment = false;
                     // When encountering whitespace as token already contains something, return
                     if started {
-                        return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)))
+                        return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)));
                     }
                 }
             } else if !char.is_whitespace() || is_string {
@@ -94,7 +98,7 @@ impl Iterator for Lexer {
                 }
             } else if started {
                 // When encountering whitespace as token already contains something, return
-                return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)))
+                return Some(Ok(Token::new(location, content.as_str(), is_lit_stringed)));
             }
         }
 

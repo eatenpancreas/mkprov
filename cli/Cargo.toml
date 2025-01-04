@@ -1,5 +1,5 @@
 [package]
-name = "mkprov"
+name = "cli"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,7 +10,8 @@ path = "main.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "4.5.4", features = ["derive"] }
-rand = "0.9.0-alpha.1"
+clap.workspace = true
 paradox_file = { path = "../paradox_file" }
-inquire = "0.7.5"
+common = { path = "../common" }
+atty.workspace = true
+inquire.workspace = true

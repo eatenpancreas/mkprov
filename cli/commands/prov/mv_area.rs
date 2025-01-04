@@ -1,5 +1,7 @@
 use clap::Args;
-use paradox_file::{Config, Field, PdxFile};
+use paradox_file::{Field, PdxFile};
+
+use crate::cli_data::CliData;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
@@ -11,7 +13,8 @@ pub struct CmdArgs {
 }
 
 impl CmdArgs {
-    pub fn run(self, cfg: &Config) {
+    pub fn run(self, cli: &CliData) {
+        let cfg = &cli.config;
         let mut file = PdxFile::pull(&cfg, "map/", &"area.txt").unwrap();
 
         let mut areas = file.contents.get_child_objects_mut();

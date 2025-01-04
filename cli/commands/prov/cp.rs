@@ -1,8 +1,8 @@
-
-use clap::Args;
-use paradox_file::{Config, PdxFile};
+use crate::cli_data::CliData;
+use crate::commands;
 use crate::common::ProvId;
-use crate::prov_commands::mv_area;
+use clap::Args;
+use paradox_file::PdxFile;
 
 #[derive(Debug, Args)]
 pub struct CmdArgs {
@@ -11,18 +11,18 @@ pub struct CmdArgs {
 
     /// ID of province that will receive the copy
     to_prov_id: u16,
-    
+
     #[arg(long, default_value_t = false)]
     /// executes cp-area alongside cp, getting both the area and the defines (default: false)
-    with_area: bool
+    with_area: bool,
 }
 
 impl CmdArgs {
-    pub fn run(self, cfg: &Config) {
-        let from = PdxFile::inspect(
-            &cfg, "history/provinces/", &ProvId(self.from_prov_id)).unwrap();
-        let mut file = PdxFile::pull(
-            &cfg, "history/provinces/", &ProvId(self.to_prov_id)).unwrap();
+    pub fn run(self, cli: &CliData) {
+        let cfg = &cli.config;
+        let from =
+            PdxFile::inspect(&cfg, "history/provinces/", &ProvId(self.from_prov_id)).unwrap();
+        let mut file = PdxFile::pull(&cfg, "history/provinces/", &ProvId(self.to_prov_id)).unwrap();
 
         file.contents = from;
 
@@ -31,11 +31,11 @@ impl CmdArgs {
         println!("Copied successfully!");
 
         if self.with_area {
-            mv_area::CmdArgs {
+            commands::prov::mv_area::CmdArgs {
                 from_prov_id: self.from_prov_id,
-                to_prov_id: self.to_prov_id
-            }.run(cfg)
+                to_prov_id: self.to_prov_id,
+            }
+            .run(cli)
         }
     }
 }
-
