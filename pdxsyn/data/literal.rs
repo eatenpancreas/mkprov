@@ -2,7 +2,7 @@ use thiserror::Error;
 
 use super::Date;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Literal {
     U32(u32),
     F32(f32),

@@ -1,7 +1,7 @@
 mod literal;
 pub use literal::*;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Date {
     year: u16,
     month: u8,

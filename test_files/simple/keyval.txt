@@ -1,0 +1,2 @@
+width = 6400
+height = 2560
