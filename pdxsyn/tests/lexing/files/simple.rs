@@ -6,10 +6,10 @@ fn keyval_lexing_test() {
     let lexer_output: Result<Vec<_>, _> = Lexer::new(KEYVAL).collect();
     let lexer_output = lexer_output.unwrap();
 
+    // width = 6400
     assert_eq!(
         lexer_output[0..6],
         [
-            // width = 6400
             Token::Literal("width".to_owned().into_literal()),
             Token::Whitespace(" ".to_owned()),
             Token::Equals,
@@ -19,10 +19,10 @@ fn keyval_lexing_test() {
         ]
     );
 
+    // height = 2560
     assert_eq!(
         lexer_output[6..12],
         [
-            // height = 2560
             Token::Literal("height".to_owned().into_literal()),
             Token::Whitespace(" ".to_owned()),
             Token::Equals,
@@ -39,29 +39,37 @@ fn comments_object_lexing_test() {
     let lexer_output: Result<Vec<_>, _> = Lexer::new(COMMENTS_OBJECT).collect();
     let lexer_output = lexer_output.unwrap();
 
+    // without comments
     assert_eq!(
-        lexer_output[0..6],
+        lexer_output[0..16],
         [
-            // width = 6400
             Token::Literal("bahama_channel_area".to_owned().into_literal()),
             Token::Whitespace(" ".to_owned()),
             Token::Equals,
             Token::Whitespace(" ".to_owned()),
-            Token::BracketR,
+            Token::BracketL,
+            Token::Whitespace("\n\t".to_owned()),
+            Token::Literal(Literal::U32(1503)),
+            Token::Whitespace(" ".to_owned()),
+            Token::Literal(Literal::U32(1505)),
+            Token::Whitespace(" ".to_owned()),
+            Token::Literal(Literal::U32(1524)),
+            Token::Whitespace(" ".to_owned()),
+            Token::Literal(Literal::U32(1525)),
             Token::Whitespace("\n".to_owned()),
+            Token::BracketR,
+            Token::Whitespace("\n\n".to_owned()),
         ]
     );
+    // with comments
 
     assert_eq!(
-        lexer_output[6..10],
+        lexer_output[16..20],
         [
-            // height = 2560
-            Token::Literal("height".to_owned().into_literal()),
-            Token::Whitespace(" ".to_owned()),
-            Token::Equals,
-            Token::Whitespace(" ".to_owned()),
-            Token::Literal(Literal::U32(2560)),
-            Token::Whitespace("\n".to_owned()),
+            Token::Comment("\n".to_owned()),
+            Token::Comment("central_asian_lakes_area = {\n".to_owned()),
+            Token::Comment("	1326 1327 1653 1654 1888\n".to_owned()),
+            Token::Comment("}\n".to_owned()),
         ]
     );
 }

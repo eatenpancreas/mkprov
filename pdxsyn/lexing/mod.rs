@@ -4,11 +4,12 @@ mod token;
 pub use lexer::*;
 use LexerAction::*;
 
-use crate::{Date, Literal};
+use crate::{Date, Literal, Precision};
 
 enum LexerAction<'a> {
-    ContinueTokenIf(&'a dyn Fn(char) -> bool),
-    ContinueNewTokenIf(Token, &'a dyn Fn(char) -> bool),
+    NewToken(Token),
+    ContinueTokenIfNext(&'a dyn Fn(char) -> bool),
+    ContinueNewTokenIfNext(Token, &'a dyn Fn(char) -> bool),
     SingleToken(Token),
 }
 
@@ -26,13 +27,23 @@ impl Iterator for Lexer {
                 (Some(Token::ExplicitString(_)), '\n') => {
                     return LexerError::UnexpectedEndOfLine(self.cursor()).err()
                 }
-                (Some(Token::Whitespace(s)), c) if c.is_ascii_whitespace() => {
+                (Some(Token::Comment(s)), c) => {
                     s.push(c);
-                    ContinueTokenIf(&|c| c.is_ascii_whitespace())
+                    if c == '\n' {
+                        break;
+                    } else {
+                        continue;
+                    }
                 }
-                (Some(Token::Literal(Literal::String(s))), c) if is_valid_ident(c) => {
+                (Some(Token::Whitespace(s)), c) => {
                     s.push(c);
-                    ContinueTokenIf(&|c| c.is_ascii_alphanumeric())
+                    ContinueTokenIfNext(&|c| c.is_ascii_whitespace())
+                }
+                (Some(Token::Literal(Literal::String(s))), c)
+                    if is_valid_ident(c) || c.is_ascii_digit() =>
+                {
+                    s.push(c);
+                    ContinueTokenIfNext(&|c| is_valid_ident(c) || c.is_ascii_digit())
                 }
                 (Some(Token::ExplicitString(s)), c)
                     if c.is_ascii_whitespace() || c.is_ascii_digit() || is_valid_ident(c) =>
@@ -40,56 +51,31 @@ impl Iterator for Lexer {
                     s.push(c);
                     continue;
                 }
-                (Some(Token::Comment(s)), c) => {
-                    s.push(c);
-                    ContinueTokenIf(&|c| c != '\n')
-                }
                 (None, c) if c.is_ascii_whitespace() => {
                     let token = Token::Whitespace(c.to_string());
-                    ContinueNewTokenIf(token, &|c| c.is_whitespace())
+                    ContinueNewTokenIfNext(token, &|c| c.is_ascii_whitespace())
                 }
-                (None, c) if c.is_ascii_alphabetic() => {
+                (None, c) if is_valid_ident(c) => {
                     let token = Token::Literal(Literal::String(c.to_string()));
-                    ContinueNewTokenIf(token, &|c| is_valid_ident(c))
+                    ContinueNewTokenIfNext(token, &|c| is_valid_ident(c))
                 }
-                (None, c) if c.is_ascii_digit() => {
-                    let mut numbers = vec![c.to_string()];
-
-                    while let Some(nc) = self.peek() {
-                        let num = numbers.last_mut().unwrap();
-                        if nc.is_ascii_digit() {
-                            self.increment();
-                            num.push(nc);
-                        } else if nc == '.' {
-                            self.increment();
-                            numbers.push(String::new());
-                        } else if nc.is_ascii_whitespace() {
-                            break;
-                        } else {
-                            return LexerError::UnexpectedToken(nc, self.cursor()).err();
+                (None, '#') => NewToken(Token::Comment(String::new())),
+                (None, c) if c == '-' => {
+                    let n = self.pop();
+                    if n.is_some_and(|c| c.is_ascii_digit()) {
+                        match self.parse_number(n.unwrap(), false) {
+                            Ok(n) => SingleToken(Token::Literal(n)),
+                            Err(e) => return e.err(),
                         }
-                    }
-
-                    let number = (|| {
-                        Ok(match numbers.len() - 1 {
-                            0 => Literal::U32(numbers[0].parse()?),
-                            1 => Literal::F32(numbers.join("").parse().unwrap()),
-                            2 => Literal::Date(Date::new(
-                                numbers[0].parse()?,
-                                numbers[1].parse()?,
-                                numbers[2].parse()?,
-                            )),
-                            l => return Err(LexerError::TooManyDots(l)),
-                        })
-                    })();
-
-                    match number {
-                        Ok(n) => SingleToken(Token::Literal(n)),
-                        Err(e) => return e.err(),
+                    } else {
+                        return LexerError::UnexpectedToken(c, self.cursor() - 1).err();
                     }
                 }
-                (None, '"') => SingleToken(Token::ExplicitString(String::new())),
-                (None, '#') => SingleToken(Token::Comment(String::new())),
+                (None, c) if c.is_ascii_digit() => match self.parse_number(c, true) {
+                    Ok(n) => SingleToken(Token::Literal(n)),
+                    Err(e) => return e.err(),
+                },
+                (None, '"') => NewToken(Token::ExplicitString(String::new())),
                 (None, '=') => SingleToken(Token::Equals),
                 (None, '{') => SingleToken(Token::BracketL),
                 (None, '}') => SingleToken(Token::BracketR),
@@ -97,13 +83,14 @@ impl Iterator for Lexer {
             };
 
             match action {
+                NewToken(t) => token = Some(t),
                 SingleToken(t) => return Some(Ok(t)),
-                ContinueTokenIf(do_continue) => {
+                ContinueTokenIfNext(do_continue) => {
                     if !self.peek().is_some_and(do_continue) {
                         return Some(Ok(token?));
                     }
                 }
-                ContinueNewTokenIf(t, do_continue) => {
+                ContinueNewTokenIfNext(t, do_continue) => {
                     if self.peek().is_some_and(do_continue) {
                         token = Some(t);
                     } else {
@@ -117,6 +104,41 @@ impl Iterator for Lexer {
     }
 }
 
+impl Lexer {
+    fn parse_number(&mut self, c: char, positive: bool) -> Result<Literal, LexerError> {
+        let mut numbers = vec![c.to_string()];
+
+        while let Some(nc) = self.peek() {
+            let num = numbers.last_mut().unwrap();
+            if nc.is_ascii_digit() {
+                self.increment();
+                num.push(nc);
+            } else if nc == '.' {
+                self.increment();
+                numbers.push(String::new());
+            } else if nc.is_ascii_whitespace() {
+                break;
+            } else {
+                return Err(LexerError::UnexpectedToken(nc, self.cursor()));
+            }
+        }
+
+        Ok(match numbers.len() - 1 {
+            0 => Literal::U32(numbers[0].parse()?),
+            1 => Literal::F32(
+                numbers.join("").parse().unwrap(),
+                Precision::new(numbers[1].len()),
+            ),
+            2 => Literal::Date(Date::new(
+                numbers[0].parse()?,
+                numbers[1].parse()?,
+                numbers[2].parse()?,
+            )),
+            l => return Err(LexerError::TooManyDots(l)),
+        })
+    }
+}
+
 fn is_valid_ident(c: char) -> bool {
-    c.is_ascii_alphabetic() && c == '_'
+    c.is_ascii_alphabetic() || c == '_'
 }

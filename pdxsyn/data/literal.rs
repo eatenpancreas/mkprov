@@ -1,3 +1,4 @@
+use derived_deref::{Deref, DerefMut};
 use thiserror::Error;
 
 use super::Date;
@@ -5,46 +6,25 @@ use super::Date;
 #[derive(Debug, Clone, PartialEq)]
 pub enum Literal {
     U32(u32),
-    F32(f32),
+    F32(f32, Precision),
     String(String),
     Date(Date),
+}
+
+#[derive(Debug, Clone, Copy, Deref, DerefMut, PartialEq, Eq)]
+pub struct Precision(usize);
+
+impl Precision {
+    #[inline]
+    pub fn new(precision: usize) -> Self {
+        Self(precision)
+    }
 }
 
 #[derive(Error, Debug)]
 pub enum ParseNumericError {
     #[error("Invalid numeric value: {0}")]
     InvalidNumericType(String),
-}
-
-impl Literal {
-    pub fn parse(content: String) -> Option<Self> {
-        if content.starts_with(|ch: char| ch.is_numeric()) {
-            Self::parse_numeric(&content)
-        } else {
-            // regular string
-            Some(Self::String(content))
-        }
-    }
-
-    pub fn parse_numeric(content: &String) -> Option<Self> {
-        let split: Vec<&str> = content.split('.').collect();
-        if split.len() == 3 {
-            Some(
-                Date::new(
-                    split[0].parse().ok()?,
-                    split[1].parse().ok()?,
-                    split[2].parse().ok()?,
-                )
-                .into_literal(),
-            )
-        } else if split.len() == 2 {
-            Some(Self::F32(content.parse().ok()?))
-        } else if split.len() == 1 {
-            Some(Self::U32(split[0].parse().ok()?))
-        } else {
-            None
-        }
-    }
 }
 
 pub trait IntoLiteral {
@@ -95,6 +75,11 @@ impl IntoLiteral for &String {
 
 impl IntoLiteral for f32 {
     fn into_literal(self) -> Literal {
-        Literal::F32(self)
+        let num_str = self.to_string();
+
+        Literal::F32(
+            self,
+            Precision::new(num_str.split('.').nth(1).map(|d| d.len()).unwrap_or(0)),
+        )
     }
 }
