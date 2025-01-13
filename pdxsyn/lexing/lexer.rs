@@ -1,8 +1,19 @@
-use std::num::{ParseFloatError, ParseIntError};
+use crate::DateError;
 
 pub use super::token::*;
+
 use thiserror::Error;
 
+/// Creates a lexer for paradox syntax.
+/// Example:
+/// ```
+/// use pdxsyn::*;
+/// let lexer_output = Lexer::new("-0.110").next().unwrap().unwrap();
+/// assert_eq!(
+///    lexer_output,
+///    Token::Literal(Literal::F32(-0.11, Precision::new(3)))
+///);
+/// ```
 #[derive(Clone)]
 pub struct Lexer {
     cursor: usize,
@@ -20,9 +31,7 @@ pub enum LexerError {
     #[error("Unexpected '{0}' at character {1}")]
     UnexpectedToken(char, usize),
     #[error(transparent)]
-    ParseIntError(#[from] ParseIntError),
-    #[error(transparent)]
-    ParseFloatError(#[from] ParseFloatError),
+    DateError(#[from] DateError),
 }
 
 impl LexerError {

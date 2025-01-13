@@ -1,6 +1,8 @@
 mod lexer;
 mod token;
 
+use std::ops::Neg;
+
 pub use lexer::*;
 use LexerAction::*;
 
@@ -124,16 +126,21 @@ impl Lexer {
         }
 
         Ok(match numbers.len() - 1 {
-            0 => Literal::U32(numbers[0].parse()?),
-            1 => Literal::F32(
-                numbers.join("").parse().unwrap(),
-                Precision::new(numbers[1].len()),
-            ),
-            2 => Literal::Date(Date::new(
-                numbers[0].parse()?,
-                numbers[1].parse()?,
-                numbers[2].parse()?,
-            )),
+            0 => {
+                let mut num: i64 = numbers[0].parse().unwrap();
+                if !positive {
+                    num = num.neg();
+                }
+                Literal::I64(num)
+            }
+            1 => {
+                let mut num: f32 = numbers.join(".").parse().unwrap();
+                if !positive {
+                    num = num.neg();
+                }
+                Literal::F32(num, Precision::new(numbers[1].len()))
+            }
+            2 => Literal::Date(Date::parse([&numbers[0], &numbers[1], &numbers[2]])?),
             l => return Err(LexerError::TooManyDots(l)),
         })
     }

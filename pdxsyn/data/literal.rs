@@ -5,7 +5,7 @@ use super::Date;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Literal {
-    U32(u32),
+    I64(i64),
     F32(f32, Precision),
     String(String),
     Date(Date),
@@ -33,19 +33,43 @@ pub trait IntoLiteral {
 
 impl IntoLiteral for u8 {
     fn into_literal(self) -> Literal {
-        Literal::U32(self as u32)
+        Literal::I64(self as i64)
     }
 }
 
 impl IntoLiteral for u16 {
     fn into_literal(self) -> Literal {
-        Literal::U32(self as u32)
+        Literal::I64(self as i64)
     }
 }
 
 impl IntoLiteral for u32 {
     fn into_literal(self) -> Literal {
-        Literal::U32(self as u32)
+        Literal::I64(self as i64)
+    }
+}
+
+impl IntoLiteral for i8 {
+    fn into_literal(self) -> Literal {
+        Literal::I64(self as i64)
+    }
+}
+
+impl IntoLiteral for i16 {
+    fn into_literal(self) -> Literal {
+        Literal::I64(self as i64)
+    }
+}
+
+impl IntoLiteral for i32 {
+    fn into_literal(self) -> Literal {
+        Literal::I64(self as i64)
+    }
+}
+
+impl IntoLiteral for i64 {
+    fn into_literal(self) -> Literal {
+        Literal::I64(self as i64)
     }
 }
 

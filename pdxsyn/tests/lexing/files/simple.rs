@@ -1,4 +1,4 @@
-use pdxsyn::{IntoLiteral, Lexer, Literal, Token};
+use pdxsyn::*;
 
 #[test]
 fn keyval_lexing_test() {
@@ -14,7 +14,7 @@ fn keyval_lexing_test() {
             Token::Whitespace(" ".to_owned()),
             Token::Equals,
             Token::Whitespace(" ".to_owned()),
-            Token::Literal(Literal::U32(6400)),
+            Token::Literal(Literal::I64(6400)),
             Token::Whitespace("\n".to_owned()),
         ]
     );
@@ -27,7 +27,7 @@ fn keyval_lexing_test() {
             Token::Whitespace(" ".to_owned()),
             Token::Equals,
             Token::Whitespace(" ".to_owned()),
-            Token::Literal(Literal::U32(2560)),
+            Token::Literal(Literal::I64(2560)),
             Token::Whitespace("\n".to_owned()),
         ]
     );
@@ -49,13 +49,13 @@ fn comments_object_lexing_test() {
             Token::Whitespace(" ".to_owned()),
             Token::BracketL,
             Token::Whitespace("\n\t".to_owned()),
-            Token::Literal(Literal::U32(1503)),
+            Token::Literal(Literal::I64(1503)),
             Token::Whitespace(" ".to_owned()),
-            Token::Literal(Literal::U32(1505)),
+            Token::Literal(Literal::I64(1505)),
             Token::Whitespace(" ".to_owned()),
-            Token::Literal(Literal::U32(1524)),
+            Token::Literal(Literal::I64(1524)),
             Token::Whitespace(" ".to_owned()),
-            Token::Literal(Literal::U32(1525)),
+            Token::Literal(Literal::I64(1525)),
             Token::Whitespace("\n".to_owned()),
             Token::BracketR,
             Token::Whitespace("\n\n".to_owned()),
