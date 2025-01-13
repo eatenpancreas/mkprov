@@ -19,7 +19,7 @@ impl Display for Token {
         match self {
             ExplicitString(str) => write!(f, "\"{str}\""),
             Literal(Literal::Date(d)) => {
-                write!(f, "{}.{}.{}", d.year(), d.month(), d.day())
+                write!(f, "{:04}.{:02}.{:02}", d.year(), d.month(), d.day())
             }
             Literal(Literal::F32(float, p)) => write!(f, "{float:.pre$}", pre = **p),
             Literal(Literal::I64(int)) => int.fmt(f),

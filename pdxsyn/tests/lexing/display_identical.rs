@@ -8,11 +8,17 @@ fn stringify(lexer: Lexer) -> Result<String, LexerError> {
 }
 
 #[test]
+fn numbers_output_identical() {
+    assert_eq!("0", stringify(Lexer::new("0")).unwrap());
+    assert_eq!("0.000", stringify(Lexer::new("0.000")).unwrap());
+    assert_eq!("-0.110", stringify(Lexer::new("-0.110")).unwrap());
+    assert_eq!("0000.02.01", stringify(Lexer::new("0000.02.01")).unwrap());
+}
+
+#[test]
 fn simple_output_identical() {
-    use test_files::simple::*;
-    assert_eq!(KEYVAL, stringify(Lexer::new(KEYVAL)).unwrap());
-    assert_eq!(
-        COMMENTS_OBJECT,
-        stringify(Lexer::new(COMMENTS_OBJECT)).unwrap()
-    );
+    let string = test_files::simple::KEYVAL;
+    assert_eq!(string, stringify(Lexer::new(string)).unwrap());
+    let string = test_files::simple::COMMENTS_OBJECT;
+    assert_eq!(string, stringify(Lexer::new(string)).unwrap());
 }
