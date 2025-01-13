@@ -4,8 +4,9 @@ pub use super::token::*;
 
 use thiserror::Error;
 
-/// Creates a lexer for paradox syntax.
-/// Example:
+/// A lexer for paradox syntax, implemented as an iterator that returns syntax tokens.
+///
+/// Some examples:
 /// ```
 /// use pdxsyn::*;
 /// let lexer_output = Lexer::new("-0.110").next().unwrap().unwrap();
@@ -41,6 +42,7 @@ impl LexerError {
 }
 
 impl Lexer {
+    /// Creates a new lexer.
     pub fn new(string: &str) -> Lexer {
         Lexer {
             cursor: 0,
