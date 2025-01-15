@@ -1,0 +1,5 @@
+2024.06.24 = {
+    event = "making of the mod"
+    height = 2560
+    width = 12.142
+}

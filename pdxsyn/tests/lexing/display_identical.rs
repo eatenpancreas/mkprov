@@ -21,4 +21,26 @@ fn simple_output_identical() {
     assert_eq!(string, stringify(Lexer::new(string)).unwrap());
     let string = test_files::simple::COMMENTS_OBJECT;
     assert_eq!(string, stringify(Lexer::new(string)).unwrap());
+    let string = test_files::simple::COMMENT;
+    assert_eq!(string, stringify(Lexer::new(string)).unwrap());
+    let string = test_files::simple::DATE_OBJECT;
+    assert_eq!(string, stringify(Lexer::new(string)).unwrap());
+    let string = test_files::simple::WONKY_OBJECT;
+    assert_eq!(string, stringify(Lexer::new(string)).unwrap());
+}
+
+#[test]
+fn game_files_output_identical() {
+    let string = test_files::game_files::ADAL;
+    assert_eq!(string, stringify(Lexer::new(string)).unwrap());
+    let string = test_files::game_files::DAGOBAH;
+    assert_eq!(string, stringify(Lexer::new(string)).unwrap());
+}
+
+#[test]
+fn massive_files_output_identical() {
+    let string = test_files::massive::ACHIEVEMENTS;
+    assert_eq!(string, stringify(Lexer::new(string)).unwrap());
+    let string = test_files::massive::AGES;
+    assert_eq!(string, stringify(Lexer::new(string)).unwrap());
 }

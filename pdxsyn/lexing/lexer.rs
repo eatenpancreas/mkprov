@@ -1,4 +1,4 @@
-use crate::DateError;
+use crate::ParseDateError;
 
 pub use super::token::*;
 
@@ -32,7 +32,7 @@ pub enum LexerError {
     #[error("Unexpected '{0}' at character {1}")]
     UnexpectedToken(char, usize),
     #[error(transparent)]
-    DateError(#[from] DateError),
+    DateError(#[from] ParseDateError),
 }
 
 impl LexerError {

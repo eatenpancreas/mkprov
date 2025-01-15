@@ -41,15 +41,11 @@ impl Iterator for Lexer {
                     s.push(c);
                     ContinueTokenIfNext(&|c| c.is_ascii_whitespace())
                 }
-                (Some(Token::Literal(Literal::String(s))), c)
-                    if is_valid_ident(c) || c.is_ascii_digit() =>
-                {
+                (Some(Token::Literal(Literal::String(s))), c) => {
                     s.push(c);
-                    ContinueTokenIfNext(&|c| is_valid_ident(c) || c.is_ascii_digit())
+                    ContinueTokenIfNext(&|c| !c.is_ascii_whitespace())
                 }
-                (Some(Token::ExplicitString(s)), c)
-                    if c.is_ascii_whitespace() || c.is_ascii_digit() || is_valid_ident(c) =>
-                {
+                (Some(Token::ExplicitString(s)), c) => {
                     s.push(c);
                     continue;
                 }

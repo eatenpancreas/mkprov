@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod lexing {
     mod files {
+        mod game_files;
         mod simple;
     }
     mod display_identical;
