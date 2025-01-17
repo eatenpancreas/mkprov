@@ -8,6 +8,8 @@ path = "lib.rs"
 
 [dependencies]
 derived-deref = "2.1.0"
+itertools = "0.14.0"
+slotmap = "1.0.7"
 thiserror = "2.0.9"
 
 [dev-dependencies]

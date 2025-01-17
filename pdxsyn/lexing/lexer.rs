@@ -23,16 +23,16 @@ pub struct Lexer {
 
 #[derive(Error, Debug, Clone)]
 pub enum LexerError {
-    #[error("Unexpected end of file at character {0})")]
+    #[error("Unexpected end of file at pos {0})")]
     UnexpectedEndOfFile(usize),
-    #[error("Unexpected end of line at character {0}")]
+    #[error("Unexpected end of line at pos {0}")]
     UnexpectedEndOfLine(usize),
-    #[error("Too many .'s in number: {0}")]
-    TooManyDots(usize),
-    #[error("Unexpected '{0}' at character {1}")]
+    #[error("Too many .'s in number: {0} at pos {1}")]
+    TooManyDots(usize, usize),
+    #[error("Unexpected '{0}' at pos {1}")]
     UnexpectedToken(char, usize),
-    #[error(transparent)]
-    DateError(#[from] ParseDateError),
+    #[error("Parsing Date error: {0} at pos {1}")]
+    DateError(ParseDateError, usize),
 }
 
 impl LexerError {
@@ -53,7 +53,7 @@ impl Lexer {
     /// Returns the next character (if available) and advances the cursor.
     pub(crate) fn pop(&mut self) -> Option<char> {
         let item = self.peek();
-        self.increment();
+        self.advance();
         item
     }
 
@@ -61,7 +61,7 @@ impl Lexer {
         self.characters.get(self.cursor).map(|c| *c)
     }
 
-    pub(crate) fn increment(&mut self) {
+    pub(crate) fn advance(&mut self) {
         self.cursor += 1;
     }
 

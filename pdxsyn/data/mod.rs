@@ -66,6 +66,16 @@ impl Date {
         self.zero_padded
     }
 
+    pub fn parse_string_unwrapped(str: &str) -> Self {
+        let mut ymd = str.split(".");
+        Self::parse([
+            ymd.next().unwrap(),
+            ymd.next().unwrap(),
+            ymd.next().unwrap(),
+        ])
+        .unwrap()
+    }
+
     pub fn parse([year_str, month_str, day_str]: [&str; 3]) -> Result<Self, ParseDateError> {
         let mut date = Date::unchecked(
             year_str.parse()?,

@@ -25,8 +25,8 @@ impl Iterator for Lexer {
 
         while let Some(char) = self.pop() {
             let action = match (&mut token, char) {
-                (Some(Token::ExplicitString(_)), '"') => break,
-                (Some(Token::ExplicitString(_)), '\n') => {
+                (Some(Token::Literal(Literal::ExplicitString(_))), '"') => break,
+                (Some(Token::Literal(Literal::ExplicitString(_))), '\n') => {
                     return LexerError::UnexpectedEndOfLine(self.cursor()).err()
                 }
                 (Some(Token::Comment(s)), c) => {
@@ -45,7 +45,7 @@ impl Iterator for Lexer {
                     s.push(c);
                     ContinueTokenIfNext(&|c| !c.is_ascii_whitespace())
                 }
-                (Some(Token::ExplicitString(s)), c) => {
+                (Some(Token::Literal(Literal::ExplicitString(s))), c) => {
                     s.push(c);
                     continue;
                 }
@@ -73,7 +73,7 @@ impl Iterator for Lexer {
                     Ok(n) => SingleToken(Token::Literal(n)),
                     Err(e) => return e.err(),
                 },
-                (None, '"') => NewToken(Token::ExplicitString(String::new())),
+                (None, '"') => NewToken(Token::Literal(Literal::ExplicitString(String::new()))),
                 (None, '=') => SingleToken(Token::Equals),
                 (None, '{') => SingleToken(Token::BracketL),
                 (None, '}') => SingleToken(Token::BracketR),
@@ -109,10 +109,10 @@ impl Lexer {
         while let Some(nc) = self.peek() {
             let num = numbers.last_mut().unwrap();
             if nc.is_ascii_digit() {
-                self.increment();
+                self.advance();
                 num.push(nc);
             } else if nc == '.' {
-                self.increment();
+                self.advance();
                 numbers.push(String::new());
             } else if nc.is_ascii_whitespace() {
                 break;
@@ -136,8 +136,11 @@ impl Lexer {
                 }
                 Literal::F32(num, Precision::new(numbers[1].len()))
             }
-            2 => Literal::Date(Date::parse([&numbers[0], &numbers[1], &numbers[2]])?),
-            l => return Err(LexerError::TooManyDots(l)),
+            2 => Literal::Date(
+                Date::parse([&numbers[0], &numbers[1], &numbers[2]])
+                    .map_err(|e| LexerError::DateError(e, self.cursor()))?,
+            ),
+            l => return Err(LexerError::TooManyDots(l, self.cursor())),
         })
     }
 }

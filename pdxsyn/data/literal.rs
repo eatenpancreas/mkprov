@@ -8,7 +8,14 @@ pub enum Literal {
     I64(i64),
     F32(f32, Precision),
     String(String),
+    ExplicitString(String),
     Date(Date),
+}
+
+impl Literal {
+    pub fn explicit_string(string: String) -> Self {
+        Self::ExplicitString(string)
+    }
 }
 
 #[derive(Debug, Clone, Copy, Deref, DerefMut, PartialEq, Eq)]
@@ -27,60 +34,76 @@ pub enum ParseNumericError {
     InvalidNumericType(String),
 }
 
+pub(crate) trait AsLiteral: Copy {
+    fn as_literal(self) -> Literal;
+}
+
 pub trait IntoLiteral {
     fn into_literal(self) -> Literal;
 }
 
-impl IntoLiteral for u8 {
+impl<T: AsLiteral> AsLiteral for &T {
+    fn as_literal(self) -> Literal {
+        (*self).as_literal()
+    }
+}
+
+impl<T: AsLiteral> IntoLiteral for T {
     fn into_literal(self) -> Literal {
+        self.as_literal()
+    }
+}
+
+impl AsLiteral for u8 {
+    fn as_literal(self) -> Literal {
         Literal::I64(self as i64)
     }
 }
 
-impl IntoLiteral for u16 {
-    fn into_literal(self) -> Literal {
+impl AsLiteral for u16 {
+    fn as_literal(self) -> Literal {
         Literal::I64(self as i64)
     }
 }
 
-impl IntoLiteral for u32 {
-    fn into_literal(self) -> Literal {
+impl AsLiteral for u32 {
+    fn as_literal(self) -> Literal {
         Literal::I64(self as i64)
     }
 }
 
-impl IntoLiteral for i8 {
-    fn into_literal(self) -> Literal {
+impl AsLiteral for i8 {
+    fn as_literal(self) -> Literal {
         Literal::I64(self as i64)
     }
 }
 
-impl IntoLiteral for i16 {
-    fn into_literal(self) -> Literal {
+impl AsLiteral for i16 {
+    fn as_literal(self) -> Literal {
         Literal::I64(self as i64)
     }
 }
 
-impl IntoLiteral for i32 {
-    fn into_literal(self) -> Literal {
+impl AsLiteral for i32 {
+    fn as_literal(self) -> Literal {
         Literal::I64(self as i64)
     }
 }
 
-impl IntoLiteral for i64 {
-    fn into_literal(self) -> Literal {
+impl AsLiteral for i64 {
+    fn as_literal(self) -> Literal {
         Literal::I64(self as i64)
     }
 }
 
-impl IntoLiteral for Date {
-    fn into_literal(self) -> Literal {
+impl AsLiteral for Date {
+    fn as_literal(self) -> Literal {
         Literal::Date(self)
     }
 }
 
-impl IntoLiteral for &str {
-    fn into_literal(self) -> Literal {
+impl AsLiteral for &str {
+    fn as_literal(self) -> Literal {
         Literal::String(self.to_string())
     }
 }
@@ -91,14 +114,20 @@ impl IntoLiteral for String {
     }
 }
 
-impl IntoLiteral for &String {
-    fn into_literal(self) -> Literal {
-        Literal::String(self.to_string())
+impl AsLiteral for &Literal {
+    fn as_literal(self) -> Literal {
+        self.clone()
     }
 }
 
-impl IntoLiteral for f32 {
+impl IntoLiteral for Literal {
     fn into_literal(self) -> Literal {
+        self
+    }
+}
+
+impl AsLiteral for f32 {
+    fn as_literal(self) -> Literal {
         let num_str = self.to_string();
 
         Literal::F32(
