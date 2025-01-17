@@ -76,13 +76,7 @@ impl Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Literal(Literal::ExplicitString(str)) => write!(f, "\"{str}\""),
-            Literal(Literal::Date(d)) => {
-                if d.is_zero_padded() {
-                    write!(f, "{:04}.{:02}.{:02}", d.year(), d.month(), d.day())
-                } else {
-                    write!(f, "{:04}.{}.{}", d.year(), d.month(), d.day())
-                }
-            }
+            Literal(Literal::Date(d)) => d.fmt(f),
             Literal(Literal::F32(float, p)) => {
                 write!(f, "{float:.pre$}", pre = **p)
             }

@@ -38,7 +38,7 @@ impl Array {
     }
 
     pub(crate) fn debug_fmt_inner(&self, doc: &Document, nesting: usize) -> String {
-        let tabbing = format!("\n{}", "\t".repeat(nesting));
+        let tabbing = format!("\n{}", "  ".repeat(nesting));
         let contents = self
             .raw_inner()
             .iter()
@@ -49,12 +49,15 @@ impl Array {
         let beginln = (self.raw_inner().len() >= 1)
             .then_some(&*tabbing)
             .unwrap_or("");
-        let endln = (self.raw_inner().len() >= 1).then_some("\n").unwrap_or("");
+
+        let endln = (self.raw_inner().len() >= 1)
+            .then_some(format!("\n{}", "  ".repeat(nesting - 1)))
+            .unwrap_or("".to_string());
 
         format!("[{beginln}{contents}{endln}]")
     }
 
     pub fn debug_fmt(&self, doc: &Document) -> String {
-        self.debug_fmt_inner(doc, 0)
+        self.debug_fmt_inner(doc, 1)
     }
 }

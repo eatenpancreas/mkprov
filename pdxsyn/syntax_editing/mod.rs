@@ -10,6 +10,9 @@ new_key_type! {
     pub(crate) struct DocumentRef;
 }
 
+/// `Document` is an ordered reference for the shadow data that gets parsed out
+/// of its `parse` method. It maintains a mapping of tokens and their order,
+/// allowing for efficient retrieval, modification, and removal of tokens.
 #[derive(Clone, Debug)]
 pub struct Document {
     inner_tokens: SlotMap<DocumentRef, Token>,
@@ -78,10 +81,12 @@ impl Document {
         }
     }
 
+    /// Returns all tokens in the document in their original order, forming a single string. Consumes `self`
     pub fn into_string(self) -> String {
         self.return_tokens().iter().map(|t| t.to_string()).join("")
     }
 
+    /// Returns all tokens in the document in their original order. Consumes `self`
     pub fn return_tokens(mut self) -> Vec<Token> {
         self.inner_ordered_keys
             .into_iter()
