@@ -34,13 +34,7 @@ pub enum ParseDateError {
 impl Display for Date {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.is_zero_padded() {
-            write!(
-                f,
-                "{:04}.{:02}.{:02}",
-                self.year(),
-                self.month(),
-                self.day()
-            )
+            write!(f, "{:04}.{:02}.{:02}", self.year(), self.month(), self.day())
         } else {
             write!(f, "{:04}.{}.{}", self.year(), self.month(), self.day())
         }
@@ -50,12 +44,7 @@ impl Display for Date {
 impl Date {
     #[inline]
     pub fn unchecked(year: u16, month: u8, day: u8, zero_padded: bool) -> Date {
-        Date {
-            year,
-            month,
-            day,
-            zero_padded,
-        }
+        Date { year, month, day, zero_padded }
     }
 
     #[inline]
@@ -122,12 +111,7 @@ impl Date {
     /// ```
     pub fn parse_string_unwrapped(str: &str) -> Self {
         let mut ymd = str.split(".");
-        Self::parse([
-            ymd.next().unwrap(),
-            ymd.next().unwrap(),
-            ymd.next().unwrap(),
-        ])
-        .unwrap()
+        Self::parse([ymd.next().unwrap(), ymd.next().unwrap(), ymd.next().unwrap()]).unwrap()
     }
 
     /// Parses a date from an array of string slices representing the year, month, and day.
@@ -179,12 +163,8 @@ impl Date {
     /// assert!(matches!(result, Err(ParseDateError::TooManyCharacters(_))));
     /// ```
     pub fn parse([year_str, month_str, day_str]: [&str; 3]) -> Result<Self, ParseDateError> {
-        let mut date = Date::unchecked(
-            year_str.parse()?,
-            month_str.parse()?,
-            day_str.parse()?,
-            false,
-        );
+        let mut date =
+            Date::unchecked(year_str.parse()?, month_str.parse()?, day_str.parse()?, false);
 
         if month_str.len() > 2 || day_str.len() > 2 {
             return Err(ParseDateError::TooManyCharacters(date));

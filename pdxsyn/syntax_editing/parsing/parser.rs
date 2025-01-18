@@ -19,10 +19,7 @@ pub(crate) enum ExpectAction<T> {
 
 impl<'a> DocumentParser<'a> {
     pub(crate) fn new(document: &'a Document) -> Self {
-        Self {
-            document,
-            cursor: 0,
-        }
+        Self { document, cursor: 0 }
     }
 
     pub(crate) fn document(&self) -> &Document {

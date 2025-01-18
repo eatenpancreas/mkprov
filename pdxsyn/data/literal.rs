@@ -130,9 +130,6 @@ impl AsLiteral for f32 {
     fn as_literal(self) -> Literal {
         let num_str = self.to_string();
 
-        Literal::F32(
-            self,
-            Precision::new(num_str.split('.').nth(1).map(|d| d.len()).unwrap_or(0)),
-        )
+        Literal::F32(self, Precision::new(num_str.split('.').nth(1).map(|d| d.len()).unwrap_or(0)))
     }
 }

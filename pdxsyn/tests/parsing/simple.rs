@@ -11,10 +11,7 @@ fn keyval_removal_test() {
     let tokens = lex(FILE);
     let mut doc = Document::create(tokens);
 
-    assert_eq!(
-        doc.clone().into_string().as_str(),
-        "width = 6400\nheight = 2560\n"
-    );
+    assert_eq!(doc.clone().into_string().as_str(), "width = 6400\nheight = 2560\n");
     let mut root = doc.parse().unwrap();
     root.remove_key(&mut doc, "height");
     assert_eq!(doc.into_string().as_str(), "width = 6400\n");
@@ -45,10 +42,7 @@ fn date_object_removal_test() {
     obj.remove_key(&mut doc, "height");
     obj.remove_key(&mut doc, "event");
 
-    assert_eq!(
-        "2024.06.24 = {\n    width = 12.142\n}\n",
-        doc.into_string().as_str()
-    );
+    assert_eq!("2024.06.24 = {\n    width = 12.142\n}\n", doc.into_string().as_str());
 }
 
 // #[test]

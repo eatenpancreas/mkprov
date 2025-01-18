@@ -27,10 +27,7 @@ impl Document {
             .map(|token| mapped_tokens.insert(token))
             .collect();
 
-        Self {
-            inner_tokens: mapped_tokens,
-            inner_ordered_keys: ordered_keys,
-        }
+        Self { inner_tokens: mapped_tokens, inner_ordered_keys: ordered_keys }
     }
 
     pub(crate) fn get_literal(&self, r: DocumentRef) -> Option<&Literal> {

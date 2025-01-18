@@ -44,10 +44,7 @@ impl LexerError {
 impl Lexer {
     /// Creates a new lexer.
     pub fn new(string: &str) -> Lexer {
-        Lexer {
-            cursor: 0,
-            characters: string.chars().collect(),
-        }
+        Lexer { cursor: 0, characters: string.chars().collect() }
     }
 
     /// Returns the next character (if available) and advances the cursor.

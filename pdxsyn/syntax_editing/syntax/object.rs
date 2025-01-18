@@ -28,11 +28,7 @@ impl SealedObjectLike for Object {
 
 impl Object {
     pub(crate) fn new_unclosed(opening: DocumentRef) -> Self {
-        Self {
-            opening,
-            closure: opening,
-            values: vec![],
-        }
+        Self { opening, closure: opening, values: vec![] }
     }
 
     pub(crate) fn close(&mut self, closure: DocumentRef) {
