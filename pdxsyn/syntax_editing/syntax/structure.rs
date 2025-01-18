@@ -31,6 +31,31 @@ impl Structure {
             _ => None,
         }
     }
+    pub fn as_value(&self) -> Option<&Value> {
+        match self {
+            Self::Value(s) => Some(s),
+            _ => None,
+        }
+    }
+    pub fn as_value_mut(&mut self) -> Option<&mut Value> {
+        match self {
+            Self::Value(s) => Some(s),
+            _ => None,
+        }
+    }
+    pub fn as_array(&self) -> Option<&Array> {
+        match self {
+            Self::Array(s) => Some(s),
+            _ => None,
+        }
+    }
+    pub fn as_array_mut(&mut self) -> Option<&mut Array> {
+        match self {
+            Self::Array(s) => Some(s),
+            _ => None,
+        }
+    }
+
     pub fn is_object(&self) -> bool {
         match self {
             Self::Object(_) => true,
@@ -57,7 +82,6 @@ impl Structure {
             Self::Array(o) => o.debug_fmt_inner(doc, nesting + 1),
         }
     }
-
     pub fn debug_fmt(&self, doc: &Document) -> String {
         self.debug_fmt_inner(doc, 0)
     }

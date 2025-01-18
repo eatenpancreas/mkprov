@@ -1,4 +1,4 @@
-use crate::Document;
+use crate::{Document, Literal};
 
 use super::{DocumentRef, SealedSyntaxLike};
 
@@ -18,6 +18,10 @@ impl Value {
 
     pub(crate) fn raw_inner(&self) -> &DocumentRef {
         &self.0
+    }
+
+    pub fn get<'a>(&self, doc: &'a Document) -> Option<&'a Literal> {
+        doc.get_literal(*self.raw_inner())
     }
 
     pub fn debug_fmt(&self, doc: &Document) -> String {
