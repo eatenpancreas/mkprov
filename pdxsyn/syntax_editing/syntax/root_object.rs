@@ -7,19 +7,12 @@ use crate::Document;
 pub struct RootObject(Vec<(DocumentRef, Structure)>);
 
 impl SealedObjectLike for RootObject {
-    fn raw_kvs(&self) -> &Vec<(DocumentRef, Structure)> {
-        &self.0
-    }
-
-    fn raw_kvs_mut(&mut self) -> &mut Vec<(DocumentRef, Structure)> {
-        &mut self.0
-    }
+    fn raw_kvs(&self) -> &Vec<(DocumentRef, Structure)> { &self.0 }
+    fn raw_kvs_mut(&mut self) -> &mut Vec<(DocumentRef, Structure)> { &mut self.0 }
 }
 
 impl RootObject {
-    pub(crate) fn new() -> Self {
-        Self(vec![])
-    }
+    pub(crate) fn new() -> Self { Self(vec![]) }
 
     pub fn debug_fmt(&self, doc: &Document) -> String {
         self.raw_kvs()

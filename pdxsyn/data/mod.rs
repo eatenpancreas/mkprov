@@ -48,29 +48,19 @@ impl Date {
     }
 
     #[inline]
-    pub fn year(&self) -> u16 {
-        self.year
-    }
+    pub fn year(&self) -> u16 { self.year }
 
     #[inline]
-    pub fn month(&self) -> u8 {
-        self.month
-    }
+    pub fn month(&self) -> u8 { self.month }
 
     #[inline]
-    pub fn day(&self) -> u8 {
-        self.day
-    }
+    pub fn day(&self) -> u8 { self.day }
 
     #[inline]
-    pub fn set_zero_padded(&mut self, zero_padded: bool) {
-        self.zero_padded = zero_padded;
-    }
+    pub fn set_zero_padded(&mut self, zero_padded: bool) { self.zero_padded = zero_padded; }
 
     #[inline]
-    pub fn is_zero_padded(&self) -> bool {
-        self.zero_padded
-    }
+    pub fn is_zero_padded(&self) -> bool { self.zero_padded }
 
     /// Parses a date string in the format "YYYY.MM.DD".
     ///

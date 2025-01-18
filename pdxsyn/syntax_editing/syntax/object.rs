@@ -17,13 +17,8 @@ impl SealedSyntaxLike for Object {
 }
 
 impl SealedObjectLike for Object {
-    fn raw_kvs(&self) -> &Vec<(DocumentRef, Structure)> {
-        &self.values
-    }
-
-    fn raw_kvs_mut(&mut self) -> &mut Vec<(DocumentRef, Structure)> {
-        &mut self.values
-    }
+    fn raw_kvs(&self) -> &Vec<(DocumentRef, Structure)> { &self.values }
+    fn raw_kvs_mut(&mut self) -> &mut Vec<(DocumentRef, Structure)> { &mut self.values }
 }
 
 impl Object {
@@ -31,9 +26,7 @@ impl Object {
         Self { opening, closure: opening, values: vec![] }
     }
 
-    pub(crate) fn close(&mut self, closure: DocumentRef) {
-        self.closure = closure;
-    }
+    pub(crate) fn close(&mut self, closure: DocumentRef) { self.closure = closure; }
 
     pub(crate) fn debug_fmt_inner(&self, doc: &Document, nesting: usize) -> String {
         let tabbing = format!("\n{}", "  ".repeat(nesting));
@@ -59,7 +52,5 @@ impl Object {
         format!("{{{beginln}{contents}{endln}}}")
     }
 
-    pub fn debug_fmt(&self, doc: &Document) -> String {
-        self.debug_fmt_inner(doc, 1)
-    }
+    pub fn debug_fmt(&self, doc: &Document) -> String { self.debug_fmt_inner(doc, 1) }
 }

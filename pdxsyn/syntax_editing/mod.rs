@@ -2,7 +2,7 @@ pub mod parsing;
 pub mod syntax;
 
 use itertools::Itertools;
-use slotmap::{new_key_type, SlotMap};
+use slotmap::{SlotMap, new_key_type};
 
 use crate::{Literal, Token};
 

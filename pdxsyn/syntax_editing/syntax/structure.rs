@@ -82,7 +82,5 @@ impl Structure {
             Self::Array(o) => o.debug_fmt_inner(doc, nesting + 1),
         }
     }
-    pub fn debug_fmt(&self, doc: &Document) -> String {
-        self.debug_fmt_inner(doc, 0)
-    }
+    pub fn debug_fmt(&self, doc: &Document) -> String { self.debug_fmt_inner(doc, 0) }
 }

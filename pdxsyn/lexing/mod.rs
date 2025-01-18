@@ -3,8 +3,8 @@ mod token;
 
 use std::ops::Neg;
 
-pub use lexer::*;
 use LexerAction::*;
+pub use lexer::*;
 
 use crate::{Date, Literal, Precision};
 
@@ -27,7 +27,7 @@ impl Iterator for Lexer {
             let action = match (&mut token, char) {
                 (Some(Token::Literal(Literal::ExplicitString(_))), '"') => break,
                 (Some(Token::Literal(Literal::ExplicitString(_))), '\n') => {
-                    return LexerError::UnexpectedEndOfLine(self.cursor()).err()
+                    return LexerError::UnexpectedEndOfLine(self.cursor()).err();
                 }
                 (Some(Token::Comment(s)), c) => {
                     s.push(c);
@@ -145,6 +145,4 @@ impl Lexer {
     }
 }
 
-fn is_valid_ident(c: char) -> bool {
-    c.is_ascii_alphabetic() || c == '_'
-}
+fn is_valid_ident(c: char) -> bool { c.is_ascii_alphabetic() || c == '_' }

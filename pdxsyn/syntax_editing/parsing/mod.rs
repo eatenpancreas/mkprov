@@ -1,7 +1,7 @@
 mod parser;
 use parser::*;
 
-use super::{syntax::*, Document, DocumentRef};
+use super::{Document, DocumentRef, syntax::*};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -124,7 +124,7 @@ impl<'a> DocumentParser<'a> {
                     _ => {
                         return Err(ParseDocumentError::MixedStructure(
                             self.document().ref_position(ref_2),
-                        ))
+                        ));
                     }
                 }
             }

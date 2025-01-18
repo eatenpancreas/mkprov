@@ -18,13 +18,8 @@ pub(crate) enum ExpectAction<T> {
 }
 
 impl<'a> DocumentParser<'a> {
-    pub(crate) fn new(document: &'a Document) -> Self {
-        Self { document, cursor: 0 }
-    }
-
-    pub(crate) fn document(&self) -> &Document {
-        self.document
-    }
+    pub(crate) fn new(document: &'a Document) -> Self { Self { document, cursor: 0 } }
+    pub(crate) fn document(&self) -> &Document { self.document }
 
     pub(crate) fn pop(&mut self) -> Option<(DocumentRef, &Token)> {
         self.advance();
@@ -36,13 +31,8 @@ impl<'a> DocumentParser<'a> {
         Some((*key, &self.document.inner_tokens[*key]))
     }
 
-    fn peek(&self) -> Option<(DocumentRef, &Token)> {
-        self.peek_nth(self.cursor + 1)
-    }
-
-    fn advance(&mut self) {
-        self.cursor += 1
-    }
+    fn peek(&self) -> Option<(DocumentRef, &Token)> { self.peek_nth(self.cursor + 1) }
+    fn advance(&mut self) { self.cursor += 1 }
 
     pub(crate) fn peek_until_expected<T>(
         &mut self,
@@ -59,7 +49,7 @@ impl<'a> DocumentParser<'a> {
                         t.to_string(),
                         self.document().ref_position(r),
                         expect_str,
-                    ))
+                    ));
                 }
             }
         }
@@ -82,7 +72,7 @@ impl<'a> DocumentParser<'a> {
                         t.to_string(),
                         self.document().ref_position(r),
                         expect_str,
-                    ))
+                    ));
                 }
             }
         }
