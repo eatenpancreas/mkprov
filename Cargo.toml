@@ -5,4 +5,10 @@ resolver = "2"
 members = [
     "pdxsyn",
     "test_files",
+    "mod_workspace",
 ]
+
+[workspace.dependencies]
+derived-deref = "2.1.0"
+itertools = "0.14.0"
+thiserror = "2.0.9"

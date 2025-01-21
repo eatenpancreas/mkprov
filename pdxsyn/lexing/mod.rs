@@ -124,16 +124,14 @@ impl Lexer {
         Ok(match numbers.len() - 1 {
             0 => {
                 let mut num: i64 = numbers[0].parse().unwrap();
-                if !positive {
-                    num = num.neg();
-                }
+                num = if positive { num } else { num.neg() };
+
                 Literal::I64(num)
             }
             1 => {
                 let mut num: f32 = numbers.join(".").parse().unwrap();
-                if !positive {
-                    num = num.neg();
-                }
+                num = if positive { num } else { num.neg() };
+
                 Literal::F32(num, Precision::new(numbers[1].len()))
             }
             2 => Literal::Date(

@@ -1,16 +1,16 @@
 [package]
 name = "pdxsyn"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 
 [lib]
 path = "lib.rs"
 
 [dependencies]
-derived-deref = "2.1.0"
-itertools = "0.14.0"
+derived-deref.workspace = true
+itertools.workspace = true
 slotmap = "1.0.7"
-thiserror = "2.0.9"
+thiserror.workspace = true
 
 [dev-dependencies]
 test_files = { path = "../test_files" }

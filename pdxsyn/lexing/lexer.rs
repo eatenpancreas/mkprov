@@ -51,8 +51,6 @@ impl Lexer {
     }
 
     pub(crate) fn peek(&self) -> Option<char> { self.characters.get(self.cursor).map(|c| *c) }
-
     pub(crate) fn advance(&mut self) { self.cursor += 1; }
-
     pub(crate) fn cursor(&mut self) -> usize { self.cursor - 1 }
 }
