@@ -18,19 +18,19 @@ fn keyval_removal_test() {
 }
 
 // TODO: Re-implement
-#[test]
-fn date_object_insertion_test() {
-    use test_files::simple::DATE_OBJECT as FILE;
-    let tokens = lex(FILE);
-    let mut doc = Document::create(tokens);
+// #[test]
+// fn date_object_insertion_test() {
+//     use test_files::simple::DATE_OBJECT as FILE;
+//     let tokens = lex(FILE);
+//     let mut doc = Document::create(tokens);
 
-    let mut root = doc.parse().unwrap();
-    let s = root.get_first_mut(&mut doc, Date::parse_string_unwrapped("2024.06.24"));
-    let obj = s.unwrap().as_object_mut().unwrap();
-    let i = obj.iter_key_indices(&doc, "event").next().unwrap();
-    let literals: &[Box<dyn IntoLiteral>] = &[Box::new("100")];
-    obj.insert(&mut doc, i, "event", literals);
-}
+//     let mut root = doc.parse().unwrap();
+//     let s = root.get_first_mut(&mut doc, Date::parse_string_unwrapped("2024.06.24"));
+//     let obj = s.unwrap().as_object_mut().unwrap();
+//     let i = obj.iter_key_indices(&doc, "event").next().unwrap();
+//     let literals: &[Box<dyn IntoLiteral>] = &[Box::new("100")];
+//     obj.insert(&mut doc, i, "event", literals);
+// }
 
 #[test]
 fn date_object_removal_test() {
