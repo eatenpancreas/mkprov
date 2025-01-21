@@ -1,0 +1,8 @@
+bahama_channel_area = {
+	1503 1505 1524 1525
+}
+
+#
+#central_asian_lakes_area = {
+#	1326 1327 1653 1654 1888
+#}

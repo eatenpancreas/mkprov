@@ -1,0 +1,4 @@
+fn_single_line = true
+chain_width = 60
+use_small_heuristics = "Max"
+style_edition = "2024"

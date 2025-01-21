@@ -3,22 +3,13 @@
 resolver = "2"
 
 members = [
-    "cli",
-    "common",
-    "paradox_file",
-    "tests"
+    "pdxsyn",
+    "test_files",
+    "mod_workspace",
+    "mkprov"
 ]
 
 [workspace.dependencies]
-atty = "0.2.14"
-clap = { version = "4.5.4", features = ["derive"] }
-codepage = "0.1.1"
-csv = "1.3.0"
 derived-deref = "2.1.0"
-encoding_rs = "0.8.34"
-encoding_rs_io = "0.1.7"
-inquire = "0.7.5"
-rand = "0.9.0-alpha.1"
-serde = { version = "1.0.203", features = ["derive"] }
-toml = "0.8.14"
-thiserror = "1.0.61"
+itertools = "0.14.0"
+thiserror = "2.0.9"
