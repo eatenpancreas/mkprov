@@ -6,6 +6,7 @@ members = [
     "pdxsyn",
     "test_files",
     "mod_workspace",
+    "mkprov"
 ]
 
 [workspace.dependencies]

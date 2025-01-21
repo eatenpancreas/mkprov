@@ -9,5 +9,5 @@ fn test_workspace_loading() {
     let wk = Workspace::load().unwrap().unwrap();
     let file = wk.get_string_file("a");
 
-    let i = file.load().unwrap();
+    let _ = file.load().unwrap();
 }
