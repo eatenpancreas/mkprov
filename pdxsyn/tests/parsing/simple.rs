@@ -17,6 +17,7 @@ fn keyval_removal_test() {
     assert_eq!(doc.into_string().as_str(), "width = 6400\n");
 }
 
+// TODO: Re-implement
 #[test]
 fn date_object_insertion_test() {
     use test_files::simple::DATE_OBJECT as FILE;
