@@ -18,21 +18,59 @@ pub struct ActionArgs {
 
 #[derive(Subcommand, Clone, Debug)]
 pub enum ActionCommands {
-    /// Moves the item
-    Move {
+    /// Moves the item.
+    /// Aliases = m
+    #[clap(aliases = ["m", "move"])]
+    MoveTo {
         /// where to move to
         to: MoveTo,
-        value: String,
+        /// name of the thing to move to
+        name: String,
     },
-    /// Deletes the items
+    /// Sets the climate
+    SetClimate {
+        climate: ClimateType,
+    },
+    SetMonsoon {
+        monsoon: Severity,
+    },
+    SetWinter {
+        climate: Severity,
+    },
+    /// Deletes the items.
+    /// Aliases = d
+    #[clap(alias = "d")]
     Delete,
 }
 
 #[derive(ValueEnum, Clone, Copy, Debug)]
 pub enum MoveTo {
     Area,
+    /// Moves to a tradenode.
+    /// Aliases = tn
+    #[clap(alias = "tn")]
     Tradenode,
     Continent,
+    Climate,
+    Monsoon,
+}
+
+#[derive(ValueEnum, Clone, Debug, Default)]
+pub enum ClimateType {
+    Tropical,
+    Arid,
+    Arctic,
+    #[default]
+    Normal,
+}
+
+#[derive(ValueEnum, Clone, Debug, Default)]
+pub enum Severity {
+    Normal,
+    Mild,
+    Severe,
+    #[default]
+    None,
 }
 
 impl ActionArgs {
