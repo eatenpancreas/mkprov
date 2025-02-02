@@ -1,7 +1,7 @@
 mod parser;
 use parser::*;
 
-use super::{Document, DocumentRef, syntax::*};
+use super::{Document, TokenRef, syntax::*};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -123,7 +123,7 @@ impl<'a> DocumentParser<'a> {
                     }
                     _ => {
                         return Err(ParseDocumentError::MixedStructure(
-                            self.document().ref_position(ref_2),
+                            self.document().token_position(ref_2).unwrap_or(0),
                         ));
                     }
                 }
@@ -137,7 +137,7 @@ impl<'a> DocumentParser<'a> {
     fn parse_object(
         &mut self,
         object: &mut Object,
-        key_ref: DocumentRef,
+        key_ref: TokenRef,
     ) -> Result<(), ParseDocumentError> {
         self.pop_until_expected(
             |t| match t {
