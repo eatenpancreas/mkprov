@@ -1,4 +1,4 @@
-use super::{Array, DocumentRef, Object, SealedSyntaxLike, Value};
+use super::{Array, TokenRef, Object, SealedSyntaxLike, Value};
 use crate::Document;
 
 #[derive(Debug, Clone)]
@@ -9,7 +9,7 @@ pub enum Structure {
 }
 
 impl SealedSyntaxLike for Structure {
-    fn token_range(&self) -> (DocumentRef, Option<DocumentRef>) {
+    fn token_range(&self) -> (TokenRef, Option<TokenRef>) {
         match self {
             Self::Array(a) => a.token_range(),
             Self::Value(a) => a.token_range(),

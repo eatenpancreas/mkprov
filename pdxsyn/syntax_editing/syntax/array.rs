@@ -1,29 +1,29 @@
 use itertools::Itertools;
 
-use super::{DocumentRef, SealedSyntaxLike};
+use super::{TokenRef, SealedSyntaxLike};
 use crate::Document;
 
 #[derive(Debug, Clone)]
 pub struct Array {
-    opening: DocumentRef,
-    closure: DocumentRef,
-    values: Vec<DocumentRef>,
+    opening: TokenRef,
+    closure: TokenRef,
+    values: Vec<TokenRef>,
 }
 
 impl SealedSyntaxLike for Array {
-    fn token_range(&self) -> (DocumentRef, Option<DocumentRef>) {
+    fn token_range(&self) -> (TokenRef, Option<TokenRef>) {
         (self.opening, Some(self.closure))
     }
 }
 
 impl Array {
-    pub(crate) fn new_unclosed(opening: DocumentRef) -> Self {
+    pub(crate) fn new_unclosed(opening: TokenRef) -> Self {
         Self { opening, closure: opening, values: vec![] }
     }
 
-    pub(crate) fn close(&mut self, closure: DocumentRef) { self.closure = closure; }
-    pub(crate) fn raw_inner(&self) -> &Vec<DocumentRef> { &self.values }
-    pub(crate) fn raw_inner_mut(&mut self) -> &mut Vec<DocumentRef> { &mut self.values }
+    pub(crate) fn close(&mut self, closure: TokenRef) { self.closure = closure; }
+    pub(crate) fn raw_inner(&self) -> &Vec<TokenRef> { &self.values }
+    pub(crate) fn raw_inner_mut(&mut self) -> &mut Vec<TokenRef> { &mut self.values }
 
     pub(crate) fn debug_fmt_inner(&self, doc: &Document, nesting: usize) -> String {
         let tabbing = format!("\n{}", "  ".repeat(nesting));

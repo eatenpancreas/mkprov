@@ -1,80 +1,93 @@
 pub mod parsing;
 pub mod syntax;
 
+use derived_deref::Deref;
 use itertools::Itertools;
-use slotmap::{SlotMap, new_key_type};
 
 use crate::{Literal, Token};
 
-new_key_type! {
-    pub(crate) struct DocumentRef;
-}
+#[derive(Clone, Copy, Debug, Deref, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct TokenRef(usize);
 
 /// `Document` is an ordered reference for the shadow data that gets parsed out
 /// of its `parse` method. It maintains a mapping of tokens and their order,
 /// allowing for efficient retrieval, modification, and removal of tokens.
 #[derive(Clone, Debug)]
 pub struct Document {
-    inner_tokens: SlotMap<DocumentRef, Token>,
-    inner_ordered_keys: Vec<DocumentRef>,
+    token_idx: usize,
+    inner_tokens: Vec<(TokenRef, Token)>,
 }
 
 impl Document {
     pub fn create(tokens: Vec<Token>) -> Self {
-        let mut mapped_tokens = SlotMap::with_key();
-        let ordered_keys = tokens
-            .into_iter()
-            .map(|token| mapped_tokens.insert(token))
-            .collect();
-
-        Self { inner_tokens: mapped_tokens, inner_ordered_keys: ordered_keys }
+        let mut token_idx = 0;
+        let tokens = tokens.into_iter().map(|t| {
+            let token_ref = TokenRef(token_idx);
+            token_idx += 1;
+            (token_ref, t)
+        });
+        Self { inner_tokens: tokens.collect(), token_idx }
     }
 
-    pub(crate) fn get_literal(&self, r: DocumentRef) -> Option<&Literal> {
-        self.inner_ordered_keys.first()?;
-        self.inner_tokens.get(r)?.as_literal()
+    pub(crate) fn insert_token_at(&mut self, t: Token, pos: usize) -> TokenRef {
+        let token_ref = TokenRef(self.token_idx);
+        self.token_idx += 1;
+        self.inner_tokens.insert(pos, (token_ref, t));
+        token_ref
     }
 
-    pub(crate) fn get_literal_mut(&mut self, r: DocumentRef) -> Option<&mut Literal> {
-        self.inner_ordered_keys.first()?;
-        self.inner_tokens.get_mut(r)?.as_literal_mut()
+    pub(crate) fn get_literal(&self, r: TokenRef) -> Option<&Literal> {
+        self.get_token(r)?.as_literal()
     }
 
-    pub(crate) fn get_token(&self, r: DocumentRef) -> Option<&Token> {
-        self.inner_ordered_keys.first()?;
-        self.inner_tokens.get(r)
+    pub(crate) fn get_literal_mut(&mut self, r: TokenRef) -> Option<&mut Literal> {
+        self.get_token_mut(r)?.as_literal_mut()
     }
 
-    pub(crate) fn ref_pos(&self, r: DocumentRef) -> Option<usize> {
-        self.inner_ordered_keys.iter().position(|t| *t == r)
+    pub(crate) fn get_token(&self, r: TokenRef) -> Option<&Token> {
+        self.get_token_at(self.token_position(r)?)
     }
 
-    pub(crate) fn get_pos(&self, pos: usize) -> Option<&Token> {
-        let key = *self.inner_ordered_keys.get(pos)?;
-        self.inner_tokens.get(key)
+    pub(crate) fn get_token_mut(&mut self, r: TokenRef) -> Option<&mut Token> {
+        self.get_mut_token_at(self.token_position(r)?)
     }
 
-    pub(crate) fn remove_pos(&mut self, pos: usize) -> Option<Token> {
-        let key = self.inner_ordered_keys.remove(pos);
-        self.inner_tokens.remove(key)
+    pub(crate) fn token_position(&self, r: TokenRef) -> Option<usize> {
+        self.inner_tokens.iter().position(|(r2, _)| *r2 == r)
     }
 
-    pub(crate) fn remove_whitespace_before(&mut self, before_this: DocumentRef) {
-        let Some(left) = self.ref_pos(before_this).unwrap().checked_sub(1) else {
+    pub(crate) fn get_token_at(&self, pos: usize) -> Option<&Token> {
+        Some(&self.inner_tokens.get(pos)?.1)
+    }
+
+    pub(crate) fn get_mut_token_at(&mut self, pos: usize) -> Option<&mut Token> {
+        Some(&mut self.inner_tokens.get_mut(pos)?.1)
+    }
+
+    pub(crate) fn remove_token(&mut self, r: TokenRef) -> Option<Token> {
+        Some(self.remove_token_at(self.token_position(r)?))
+    }
+
+    pub(crate) fn remove_token_at(&mut self, pos: usize) -> Token {
+        self.inner_tokens.remove(pos).1
+    }
+
+    pub(crate) fn remove_whitespace_before(&mut self, before_this: TokenRef) {
+        let Some(left) = self.token_position(before_this).unwrap().checked_sub(1) else {
             return;
         };
 
-        if self.get_pos(left).is_some_and(|t| t.is_whitespace()) {
-            self.remove_pos(left);
+        if self.get_token_at(left).is_some_and(|t| t.is_whitespace()) {
+            self.remove_token_at(left);
         }
     }
 
-    pub(crate) fn remove_range(&mut self, left: DocumentRef, right: DocumentRef) {
-        let left = self.ref_pos(left).unwrap();
-        let diff = self.ref_pos(right).unwrap() - left;
+    pub(crate) fn remove_range(&mut self, left: TokenRef, right: TokenRef) {
+        let left = self.token_position(left).unwrap();
+        let diff = self.token_position(right).unwrap() - left;
 
         for _ in 0..=diff {
-            self.remove_pos(left);
+            self.remove_token_at(left);
         }
     }
 
@@ -84,22 +97,7 @@ impl Document {
     }
 
     /// Returns all tokens in the document in their original order. Consumes `self`
-    pub fn return_tokens(mut self) -> Vec<Token> {
-        self.inner_ordered_keys
-            .into_iter()
-            .filter_map(|r| self.inner_tokens.remove(r))
-            .collect()
-    }
-
-    pub(crate) fn ref_position(&self, dr: DocumentRef) -> usize {
-        let mut total_len = 0;
-        for token_ref in self.inner_ordered_keys.iter() {
-            if *token_ref == dr {
-                break;
-            }
-            total_len += self.get_token(*token_ref).unwrap().to_string().len();
-        }
-
-        total_len
+    pub fn return_tokens(self) -> Vec<Token> {
+        self.inner_tokens.into_iter().map(|(_, t)| t).collect()
     }
 }

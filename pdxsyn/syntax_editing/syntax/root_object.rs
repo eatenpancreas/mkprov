@@ -1,14 +1,14 @@
 use itertools::Itertools;
 
-use super::{DocumentRef, SealedObjectLike, Structure};
+use super::{TokenRef, SealedObjectLike, Structure};
 use crate::Document;
 
 #[derive(Debug, Clone)]
-pub struct RootObject(Vec<(DocumentRef, Structure)>);
+pub struct RootObject(Vec<(TokenRef, Structure)>);
 
 impl SealedObjectLike for RootObject {
-    fn raw_kvs(&self) -> &Vec<(DocumentRef, Structure)> { &self.0 }
-    fn raw_kvs_mut(&mut self) -> &mut Vec<(DocumentRef, Structure)> { &mut self.0 }
+    fn raw_kvs(&self) -> &Vec<(TokenRef, Structure)> { &self.0 }
+    fn raw_kvs_mut(&mut self) -> &mut Vec<(TokenRef, Structure)> { &mut self.0 }
 }
 
 impl RootObject {

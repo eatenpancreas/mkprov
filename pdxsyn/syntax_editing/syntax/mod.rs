@@ -9,12 +9,12 @@ use into_structure::IntoStructure;
 
 pub use {array::*, object::*, root_object::*, structure::*, value::*};
 
-use crate::{IntoLiteral, Literal};
+use crate::{IntoLiteral, Literal, Token};
 
-use super::{Document, DocumentRef};
+use super::{Document, TokenRef};
 
 pub(crate) trait SealedSyntaxLike {
-    fn token_range(&self) -> (DocumentRef, Option<DocumentRef>);
+    fn token_range(&self) -> (TokenRef, Option<TokenRef>);
 }
 impl<T> SyntaxLike for T where T: SealedSyntaxLike {}
 
@@ -22,8 +22,8 @@ impl<T> SyntaxLike for T where T: SealedSyntaxLike {}
 pub trait SyntaxLike: SealedSyntaxLike {}
 
 pub(crate) trait SealedObjectLike {
-    fn raw_kvs(&self) -> &Vec<(DocumentRef, Structure)>;
-    fn raw_kvs_mut(&mut self) -> &mut Vec<(DocumentRef, Structure)>;
+    fn raw_kvs(&self) -> &Vec<(TokenRef, Structure)>;
+    fn raw_kvs_mut(&mut self) -> &mut Vec<(TokenRef, Structure)>;
 }
 impl<T> ObjectLike for T where T: SealedObjectLike {}
 
@@ -101,6 +101,7 @@ pub trait ObjectLike: SealedObjectLike {
         key: impl IntoLiteral,
         value: impl IntoStructure,
     ) {
+        let key = Token::Literal(key.into_literal());
         value.into_structure(doc, todo!());
         todo!()
     }

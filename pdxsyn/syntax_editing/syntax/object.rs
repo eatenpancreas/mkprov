@@ -1,32 +1,32 @@
 use itertools::Itertools;
 
-use super::{DocumentRef, SealedObjectLike, SealedSyntaxLike, Structure};
+use super::{TokenRef, SealedObjectLike, SealedSyntaxLike, Structure};
 use crate::Document;
 
 #[derive(Debug, Clone)]
 pub struct Object {
-    opening: DocumentRef,
-    closure: DocumentRef,
-    values: Vec<(DocumentRef, Structure)>,
+    opening: TokenRef,
+    closure: TokenRef,
+    values: Vec<(TokenRef, Structure)>,
 }
 
 impl SealedSyntaxLike for Object {
-    fn token_range(&self) -> (DocumentRef, Option<DocumentRef>) {
+    fn token_range(&self) -> (TokenRef, Option<TokenRef>) {
         (self.opening, Some(self.closure))
     }
 }
 
 impl SealedObjectLike for Object {
-    fn raw_kvs(&self) -> &Vec<(DocumentRef, Structure)> { &self.values }
-    fn raw_kvs_mut(&mut self) -> &mut Vec<(DocumentRef, Structure)> { &mut self.values }
+    fn raw_kvs(&self) -> &Vec<(TokenRef, Structure)> { &self.values }
+    fn raw_kvs_mut(&mut self) -> &mut Vec<(TokenRef, Structure)> { &mut self.values }
 }
 
 impl Object {
-    pub(crate) fn new_unclosed(opening: DocumentRef) -> Self {
+    pub(crate) fn new_unclosed(opening: TokenRef) -> Self {
         Self { opening, closure: opening, values: vec![] }
     }
 
-    pub(crate) fn close(&mut self, closure: DocumentRef) { self.closure = closure; }
+    pub(crate) fn close(&mut self, closure: TokenRef) { self.closure = closure; }
 
     pub(crate) fn debug_fmt_inner(&self, doc: &Document, nesting: usize) -> String {
         let tabbing = format!("\n{}", "  ".repeat(nesting));
