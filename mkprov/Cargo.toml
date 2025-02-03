@@ -11,3 +11,6 @@ path = "main.rs"
 atty = "0.2.14"
 clap = { version = "4.5.27", features = ["derive"] }
 mod_workspace = { path = "../mod_workspace" }
+
+[dev-dependencies]
+tempdir = "0.3.7"

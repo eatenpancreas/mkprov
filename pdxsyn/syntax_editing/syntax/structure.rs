@@ -1,4 +1,4 @@
-use super::{Array, TokenRef, Object, SealedSyntaxLike, Value};
+use super::{Array, Object, SealedSyntaxLike, TokenRef, Value};
 use crate::Document;
 
 #[derive(Debug, Clone)]
@@ -75,12 +75,11 @@ impl Structure {
         }
     }
 
-    pub(crate) fn debug_fmt_inner(&self, doc: &Document, nesting: usize) -> String {
+    pub fn debug_fmt(&self, doc: &Document) -> String {
         match self {
             Self::Value(o) => o.debug_fmt(doc),
-            Self::Object(o) => o.debug_fmt_inner(doc, nesting + 1),
-            Self::Array(o) => o.debug_fmt_inner(doc, nesting + 1),
+            Self::Object(o) => o.debug_fmt(doc),
+            Self::Array(o) => o.debug_fmt(doc),
         }
     }
-    pub fn debug_fmt(&self, doc: &Document) -> String { self.debug_fmt_inner(doc, 0) }
 }

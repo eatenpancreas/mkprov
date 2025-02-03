@@ -5,9 +5,7 @@ mod root_object;
 mod structure;
 mod value;
 
-use into_structure::IntoStructure;
-
-pub use {array::*, object::*, root_object::*, structure::*, value::*};
+pub use {array::*, into_structure::*, object::*, root_object::*, structure::*, value::*};
 
 use crate::{IntoLiteral, Literal, Token};
 
@@ -24,6 +22,7 @@ pub trait SyntaxLike: SealedSyntaxLike {}
 pub(crate) trait SealedObjectLike {
     fn raw_kvs(&self) -> &Vec<(TokenRef, Structure)>;
     fn raw_kvs_mut(&mut self) -> &mut Vec<(TokenRef, Structure)>;
+    fn indentation(&self) -> usize;
 }
 impl<T> ObjectLike for T where T: SealedObjectLike {}
 
@@ -41,7 +40,13 @@ pub trait ObjectLike: SealedObjectLike {
         let kvs = self.raw_kvs_mut();
         let (d_ref, s) = kvs.remove(idx);
         let (middle, right) = s.token_range();
-        doc.remove_whitespace_before(d_ref);
+
+        if let Some(left) = doc.token_sub_position(d_ref, 1) {
+            if doc.get_token(left).is_some_and(|t| t.is_whitespace()) {
+                doc.remove_token(left);
+            }
+        }
+
         doc.remove_range(d_ref, right.unwrap_or(middle));
 
         true
@@ -102,8 +107,25 @@ pub trait ObjectLike: SealedObjectLike {
         value: impl IntoStructure,
     ) {
         let key = Token::Literal(key.into_literal());
-        value.into_structure(doc, todo!());
-        todo!()
+        if let Some((_, s)) = self.raw_kvs().get(index) {
+            let (first, last) = s.token_range();
+            let token = last.unwrap_or(first);
+            let indent = "   ".repeat(self.indentation());
+
+            let inserted = doc.insert_tokens_after(
+                vec![
+                    Token::Whitespace(format!("\n{indent}")),
+                    key,
+                    Token::Whitespace(" ".to_owned()),
+                    Token::Equals,
+                    Token::Whitespace(" ".to_owned()),
+                ],
+                token,
+            );
+
+            value.into_structure(doc, *inserted.last().unwrap());
+        };
+        // todo!()
     }
 
     /// Gets the key at the specified index and returns a reference to it.

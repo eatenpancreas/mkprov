@@ -3,10 +3,16 @@ mod query;
 
 use action::ActionArgs;
 use clap::{CommandFactory, Parser};
+use mod_workspace::Workspace;
 use query::QueryArgs;
 use std::io;
 
 fn main() {
+    let workspace = match Workspace::load().unwrap() {
+        Some(wk) => wk,
+        None => Workspace::create().unwrap(),
+    };
+
     if !atty::is(atty::Stream::Stdin) {
         let lines: Vec<String> = io::stdin()
             .lines()
@@ -18,13 +24,13 @@ fn main() {
             print_action_help();
         }
 
-        ActionArgs::main(args.commands.unwrap(), lines);
+        ActionArgs::main(args.commands.unwrap(), lines, workspace);
     } else {
         let args = QueryArgs::parse();
         if args.action {
             print_action_help();
         }
-        QueryArgs::main(args.kind.unwrap(), args.items);
+        QueryArgs::main(args.kind.unwrap(), args.items, workspace);
     }
 }
 

@@ -1,4 +1,7 @@
+use ItemKind::*;
 use clap::{Parser, ValueEnum};
+use mod_workspace::Workspace;
+
 /// The query part of Mkprov.
 /// Use mkprov --action to display help for the action part of Mkprov
 ///
@@ -31,5 +34,10 @@ pub enum ItemKind {
 }
 
 impl QueryArgs {
-    pub fn main(kind: ItemKind, items: Vec<String>) {}
+    pub fn main(kind: ItemKind, _items: Vec<String>, _workspace: Workspace) {
+        match kind {
+            Province => {}
+            Area => {}
+        }
+    }
 }

@@ -40,7 +40,7 @@ impl Document {
                 )?
                 .ok_or(ParseDocumentError::UnexpectedEnd)?;
 
-            let struc = parser.parse_structure()?;
+            let struc = parser.parse_structure(1)?;
             root.raw_kvs_mut().push((token_ref, struc));
         }
 
@@ -49,7 +49,7 @@ impl Document {
 }
 
 impl<'a> DocumentParser<'a> {
-    fn parse_structure(&mut self) -> Result<Structure, ParseDocumentError> {
+    fn parse_structure(&mut self, depth: usize) -> Result<Structure, ParseDocumentError> {
         let (ref_1, is_bracket_opening) = self
             .pop_until_expected(
                 |t| match t {
@@ -89,7 +89,7 @@ impl<'a> DocumentParser<'a> {
 
                 return Ok(structure);
             } else if is_bracket_closing {
-                let mut empty_arr = Array::new_unclosed(ref_1);
+                let mut empty_arr = Array::new_unclosed(ref_1, depth);
                 empty_arr.close(ref_2);
                 return Ok(Structure::Array(empty_arr));
             } else {
@@ -106,18 +106,18 @@ impl<'a> DocumentParser<'a> {
 
                 match (expect_object, structure.as_mut()) {
                     (true, Some(Structure::Object(obj))) => {
-                        self.parse_object(obj, ref_2)?;
+                        self.parse_object(obj, ref_2, depth)?;
                     }
                     (false, Some(Structure::Array(arr))) => {
                         arr.raw_inner_mut().push(ref_2);
                     }
                     (true, None) => {
-                        let mut obj = Object::new_unclosed(ref_1);
-                        self.parse_object(&mut obj, ref_2)?;
+                        let mut obj = Object::new_unclosed(ref_1, depth);
+                        self.parse_object(&mut obj, ref_2, depth)?;
                         structure = Some(Structure::Object(obj))
                     }
                     (false, None) => {
-                        let mut arr = Array::new_unclosed(ref_1);
+                        let mut arr = Array::new_unclosed(ref_1, depth);
                         arr.raw_inner_mut().push(ref_2);
                         structure = Some(Structure::Array(arr));
                     }
@@ -138,6 +138,7 @@ impl<'a> DocumentParser<'a> {
         &mut self,
         object: &mut Object,
         key_ref: TokenRef,
+        depth: usize,
     ) -> Result<(), ParseDocumentError> {
         self.pop_until_expected(
             |t| match t {
@@ -149,7 +150,7 @@ impl<'a> DocumentParser<'a> {
         )?
         .ok_or(ParseDocumentError::UnexpectedEnd)?;
 
-        let value = self.parse_structure()?;
+        let value = self.parse_structure(depth + 1)?;
         object.raw_kvs_mut().push((key_ref, value));
 
         Ok(())

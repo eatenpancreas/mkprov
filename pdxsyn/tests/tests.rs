@@ -17,7 +17,6 @@ mod parsing {
 #[cfg(test)]
 mod common {
     mod capacity;
+    mod date_tests;
+    mod inserts;
 }
-
-#[cfg(test)]
-mod date_tests;

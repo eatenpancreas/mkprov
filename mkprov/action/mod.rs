@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand, ValueEnum};
+use mod_workspace::Workspace;
 
 /// The action part of Mkprov
 #[derive(Parser, Debug)]
@@ -74,5 +75,7 @@ pub enum Severity {
 }
 
 impl ActionArgs {
-    pub fn main(commands: ActionCommands, items: Vec<String>) { println!("{items:?}") }
+    pub fn main(_commands: ActionCommands, items: Vec<String>, _workspace: Workspace) {
+        println!("{items:?}")
+    }
 }

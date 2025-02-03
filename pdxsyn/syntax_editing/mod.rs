@@ -29,65 +29,79 @@ impl Document {
         Self { inner_tokens: tokens.collect(), token_idx }
     }
 
-    pub(crate) fn insert_token_at(&mut self, t: Token, pos: usize) -> TokenRef {
+    pub(crate) fn insert_token_after(&mut self, t: Token, after: TokenRef) -> TokenRef {
         let token_ref = TokenRef(self.token_idx);
         self.token_idx += 1;
+        let pos = self.token_position(after).unwrap_or(0) + 1;
         self.inner_tokens.insert(pos, (token_ref, t));
         token_ref
+    }
+
+    pub(crate) fn insert_tokens_after(
+        &mut self,
+        tokens: impl IntoIterator<Item = Token>,
+        after: TokenRef,
+    ) -> Vec<TokenRef> {
+        let mut tokens = tokens.into_iter().collect_vec();
+        tokens.reverse();
+
+        let mut refs = tokens
+            .into_iter()
+            .map(move |t| self.insert_token_after(t, after))
+            .collect_vec();
+
+        refs.reverse();
+        refs
     }
 
     pub(crate) fn get_literal(&self, r: TokenRef) -> Option<&Literal> {
         self.get_token(r)?.as_literal()
     }
 
-    pub(crate) fn get_literal_mut(&mut self, r: TokenRef) -> Option<&mut Literal> {
-        self.get_token_mut(r)?.as_literal_mut()
-    }
+    // pub(crate) fn get_literal_mut(&mut self, r: TokenRef) -> Option<&mut Literal> {
+    //     self.get_token_mut(r)?.as_literal_mut()
+    // }
 
     pub(crate) fn get_token(&self, r: TokenRef) -> Option<&Token> {
-        self.get_token_at(self.token_position(r)?)
+        self.inner_tokens
+            .iter()
+            .find_map(|(r2, t)| (r == *r2).then_some(t))
     }
 
-    pub(crate) fn get_token_mut(&mut self, r: TokenRef) -> Option<&mut Token> {
-        self.get_mut_token_at(self.token_position(r)?)
-    }
+    // pub(crate) fn get_token_mut(&mut self, r: TokenRef) -> Option<&mut Token> {
+    //     self.inner_tokens
+    //         .iter_mut()
+    //         .find_map(|(r2, t)| (r == *r2).then_some(t))
+    // }
 
     pub(crate) fn token_position(&self, r: TokenRef) -> Option<usize> {
         self.inner_tokens.iter().position(|(r2, _)| *r2 == r)
     }
 
-    pub(crate) fn get_token_at(&self, pos: usize) -> Option<&Token> {
-        Some(&self.inner_tokens.get(pos)?.1)
+    pub(crate) fn token_at(&self, pos: usize) -> Option<TokenRef> {
+        self.inner_tokens.iter().nth(pos).map(|(r, _)| *r)
     }
 
-    pub(crate) fn get_mut_token_at(&mut self, pos: usize) -> Option<&mut Token> {
-        Some(&mut self.inner_tokens.get_mut(pos)?.1)
+    /// Gets the ref for the given token position minus the `sub`
+    pub(crate) fn token_sub_position(&self, r: TokenRef, sub: usize) -> Option<TokenRef> {
+        self.token_at(self.token_position(r).unwrap().checked_sub(sub)?)
+    }
+
+    /// Gets the ref for the given token position plus the `sub`
+    pub(crate) fn _token_add_position(&self, r: TokenRef, add: usize) -> Option<TokenRef> {
+        self.token_at(self.token_position(r).unwrap().checked_add(add)?)
     }
 
     pub(crate) fn remove_token(&mut self, r: TokenRef) -> Option<Token> {
-        Some(self.remove_token_at(self.token_position(r)?))
-    }
-
-    pub(crate) fn remove_token_at(&mut self, pos: usize) -> Token {
-        self.inner_tokens.remove(pos).1
-    }
-
-    pub(crate) fn remove_whitespace_before(&mut self, before_this: TokenRef) {
-        let Some(left) = self.token_position(before_this).unwrap().checked_sub(1) else {
-            return;
-        };
-
-        if self.get_token_at(left).is_some_and(|t| t.is_whitespace()) {
-            self.remove_token_at(left);
-        }
+        Some(self.inner_tokens.remove(self.token_position(r)?).1)
     }
 
     pub(crate) fn remove_range(&mut self, left: TokenRef, right: TokenRef) {
         let left = self.token_position(left).unwrap();
-        let diff = self.token_position(right).unwrap() - left;
+        let right = self.token_position(right).unwrap();
 
-        for _ in 0..=diff {
-            self.remove_token_at(left);
+        for _ in 0..=right - left {
+            self.token_at(left).and_then(|t| self.remove_token(t));
         }
     }
 

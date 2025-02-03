@@ -3,3 +3,5 @@
 cargo.lock
 .DS_Store
 /_old
+
+_example_pdx/
