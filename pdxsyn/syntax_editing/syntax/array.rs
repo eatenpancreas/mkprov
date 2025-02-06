@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use super::{SealedSyntaxLike, TokenRef};
+use super::{DebugFmt, SealedSyntaxLike, TokenRef};
 use crate::Document;
 
 #[derive(Debug, Clone)]
@@ -23,8 +23,10 @@ impl Array {
     pub(crate) fn close(&mut self, closure: TokenRef) { self.closure = closure; }
     pub(crate) fn raw_inner(&self) -> &Vec<TokenRef> { &self.values }
     pub(crate) fn raw_inner_mut(&mut self) -> &mut Vec<TokenRef> { &mut self.values }
+}
 
-    pub fn debug_fmt(&self, doc: &Document) -> String {
+impl DebugFmt for Array {
+    fn debug_fmt(&self, doc: &Document) -> String {
         let tabbing = format!("\n{}", "  ".repeat(self.depth));
         let contents = self
             .raw_inner()

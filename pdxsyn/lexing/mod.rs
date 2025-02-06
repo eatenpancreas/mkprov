@@ -143,4 +143,4 @@ impl Lexer {
     }
 }
 
-fn is_valid_ident(c: char) -> bool { c.is_ascii_alphabetic() || c == '_' }
+pub fn is_valid_ident(c: char) -> bool { c.is_ascii_alphabetic() || c == '_' }

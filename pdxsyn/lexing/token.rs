@@ -14,6 +14,24 @@ pub enum Token {
 }
 
 impl Token {
+    pub fn name(&self) -> &'static str {
+        match self {
+            Token::Whitespace(_) => "Whitespace",
+            Token::Literal(_) => "Literal",
+            Token::Comment(_) => "Comment",
+            Token::Equals => "Equals",
+            Token::BracketR => "Bracket right",
+            Token::BracketL => "Bracket left",
+        }
+    }
+
+    pub fn into_literal(self) -> Option<Literal> {
+        match self {
+            Literal(lit) => Some(lit),
+            _ => None,
+        }
+    }
+
     pub fn as_literal(&self) -> Option<&Literal> {
         match self {
             Literal(lit) => Some(lit),

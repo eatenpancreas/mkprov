@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use super::{SealedObjectLike, Structure, TokenRef};
+use super::{DebugFmt, SealedObjectLike, Structure, TokenRef};
 use crate::Document;
 
 #[derive(Debug, Clone)]
@@ -14,8 +14,10 @@ impl SealedObjectLike for RootObject {
 
 impl RootObject {
     pub(crate) fn new() -> Self { Self(vec![]) }
+}
 
-    pub fn debug_fmt(&self, doc: &Document) -> String {
+impl DebugFmt for RootObject {
+    fn debug_fmt(&self, doc: &Document) -> String {
         self.raw_kvs()
             .iter()
             .format_with("\n", |(d_ref, s), f| {

@@ -16,6 +16,7 @@ pub(crate) struct TokenRef(usize);
 pub struct Document {
     token_idx: usize,
     inner_tokens: Vec<(TokenRef, Token)>,
+    desired_line_wrap: usize,
 }
 
 impl Document {
@@ -26,7 +27,17 @@ impl Document {
             token_idx += 1;
             (token_ref, t)
         });
-        Self { inner_tokens: tokens.collect(), token_idx }
+        Self { inner_tokens: tokens.collect(), token_idx, desired_line_wrap: 1 }
+    }
+
+    pub fn with_line_wrap(&mut self, wrap: usize) { self.desired_line_wrap = wrap }
+
+    pub(crate) fn insert_token_before(&mut self, t: Token, before: TokenRef) -> TokenRef {
+        let token_ref = TokenRef(self.token_idx);
+        self.token_idx += 1;
+        let pos = self.token_position(before).unwrap_or(0);
+        self.inner_tokens.insert(pos, (token_ref, t));
+        token_ref
     }
 
     pub(crate) fn insert_token_after(&mut self, t: Token, after: TokenRef) -> TokenRef {
@@ -54,13 +65,24 @@ impl Document {
         refs
     }
 
+    pub(crate) fn insert_tokens_before(
+        &mut self,
+        tokens: impl IntoIterator<Item = Token>,
+        before: TokenRef,
+    ) -> Vec<TokenRef> {
+        tokens
+            .into_iter()
+            .map(move |t| self.insert_token_before(t, before))
+            .collect_vec()
+    }
+
     pub(crate) fn get_literal(&self, r: TokenRef) -> Option<&Literal> {
         self.get_token(r)?.as_literal()
     }
 
-    // pub(crate) fn get_literal_mut(&mut self, r: TokenRef) -> Option<&mut Literal> {
-    //     self.get_token_mut(r)?.as_literal_mut()
-    // }
+    pub(crate) fn _get_literal_mut(&mut self, r: TokenRef) -> Option<&mut Literal> {
+        self._get_token_mut(r)?.as_literal_mut()
+    }
 
     pub(crate) fn get_token(&self, r: TokenRef) -> Option<&Token> {
         self.inner_tokens
@@ -68,11 +90,11 @@ impl Document {
             .find_map(|(r2, t)| (r == *r2).then_some(t))
     }
 
-    // pub(crate) fn get_token_mut(&mut self, r: TokenRef) -> Option<&mut Token> {
-    //     self.inner_tokens
-    //         .iter_mut()
-    //         .find_map(|(r2, t)| (r == *r2).then_some(t))
-    // }
+    pub(crate) fn _get_token_mut(&mut self, r: TokenRef) -> Option<&mut Token> {
+        self.inner_tokens
+            .iter_mut()
+            .find_map(|(r2, t)| (r == *r2).then_some(t))
+    }
 
     pub(crate) fn token_position(&self, r: TokenRef) -> Option<usize> {
         self.inner_tokens.iter().position(|(r2, _)| *r2 == r)

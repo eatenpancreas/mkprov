@@ -1,4 +1,7 @@
-use pdxsyn::{Document, Lexer, Token, syntax::ObjectLike};
+use pdxsyn::{
+    Document, Lexer, Token,
+    syntax::{DebugFmt, ObjectLike},
+};
 
 fn lex(str: &str) -> Vec<Token> {
     let lexer_output: Result<Vec<_>, _> = Lexer::new(str).collect();

@@ -1,6 +1,6 @@
 use crate::{Document, Literal};
 
-use super::{TokenRef, SealedSyntaxLike};
+use super::{DebugFmt, SealedSyntaxLike, TokenRef};
 
 #[derive(Debug, Clone)]
 pub struct Value(TokenRef);
@@ -16,8 +16,10 @@ impl Value {
     pub fn get<'a>(&self, doc: &'a Document) -> Option<&'a Literal> {
         doc.get_literal(*self.raw_inner())
     }
+}
 
-    pub fn debug_fmt(&self, doc: &Document) -> String {
+impl DebugFmt for Value {
+    fn debug_fmt(&self, doc: &Document) -> String {
         format!("{}", doc.get_token(*self.raw_inner()).unwrap())
     }
 }

@@ -1,4 +1,4 @@
-use super::{Array, Object, SealedSyntaxLike, TokenRef, Value};
+use super::{Array, DebugFmt, Object, SealedSyntaxLike, TokenRef, Value};
 use crate::Document;
 
 #[derive(Debug, Clone)]
@@ -74,8 +74,10 @@ impl Structure {
             _ => false,
         }
     }
+}
 
-    pub fn debug_fmt(&self, doc: &Document) -> String {
+impl DebugFmt for Structure {
+    fn debug_fmt(&self, doc: &Document) -> String {
         match self {
             Self::Value(o) => o.debug_fmt(doc),
             Self::Object(o) => o.debug_fmt(doc),

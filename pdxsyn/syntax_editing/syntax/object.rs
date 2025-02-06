@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use super::{SealedObjectLike, SealedSyntaxLike, Structure, TokenRef};
+use super::{DebugFmt, SealedObjectLike, SealedSyntaxLike, Structure, TokenRef};
 use crate::Document;
 
 #[derive(Debug, Clone)]
@@ -27,8 +27,10 @@ impl Object {
     }
 
     pub(crate) fn close(&mut self, closure: TokenRef) { self.closure = closure; }
+}
 
-    pub fn debug_fmt(&self, doc: &Document) -> String {
+impl DebugFmt for Object {
+    fn debug_fmt(&self, doc: &Document) -> String {
         let tabbing = format!("\n{}", "  ".repeat(self.depth));
         let contents = self
             .raw_kvs()

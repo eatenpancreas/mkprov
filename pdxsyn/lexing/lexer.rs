@@ -1,4 +1,4 @@
-use crate::ParseDateError;
+use crate::{Literal, ParseDateError};
 
 pub use super::token::*;
 
@@ -31,6 +31,8 @@ pub enum LexerError {
     TooManyDots(usize, usize),
     #[error("Unexpected '{0}' at pos {1}")]
     UnexpectedToken(char, usize),
+    #[error("Unexpected token type {0}, expected {1} at pos {2}")]
+    ExpectedTokenType(&'static str, &'static str, usize),
     #[error("Parsing Date error: {0} at pos {1}")]
     DateError(ParseDateError, usize),
 }
@@ -53,4 +55,14 @@ impl Lexer {
     pub(crate) fn peek(&self) -> Option<char> { self.characters.get(self.cursor).map(|c| *c) }
     pub(crate) fn advance(&mut self) { self.cursor += 1; }
     pub(crate) fn cursor(&mut self) -> usize { self.cursor - 1 }
+
+    pub fn lex_literal(string: &str) -> Result<Literal, LexerError> {
+        match Lexer::new(string)
+            .next()
+            .ok_or(LexerError::UnexpectedEndOfFile(string.len()))??
+        {
+            Token::Literal(l) => Ok(l),
+            t => Err(LexerError::ExpectedTokenType(t.name(), "Literal", 0)),
+        }
+    }
 }
