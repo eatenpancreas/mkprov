@@ -12,8 +12,16 @@ pub trait ObjectLike: SealedObjectLike {
             return false;
         };
 
+        self.remove_index(doc, idx).is_some()
+    }
+
+    /// Removes the key-value at the given index and returns the key
+    fn remove_index(&mut self, doc: &mut Document, index: usize) -> Option<Literal> {
         let kvs = self.raw_kvs_mut();
-        let (d_ref, s) = kvs.remove(idx);
+        if index >= kvs.len() {
+            return None;
+        }
+        let (d_ref, s) = kvs.remove(index);
         let (middle, right) = s.token_range();
 
         if let Some(left) = doc.token_sub_position(d_ref, 1) {
@@ -22,9 +30,10 @@ pub trait ObjectLike: SealedObjectLike {
             }
         }
 
-        doc.remove_range(d_ref, right.unwrap_or(middle));
-
-        true
+        doc.remove_range(d_ref, right.unwrap_or(middle))
+            .into_iter()
+            .next()
+            .map(|t| t.into_literal().unwrap())
     }
 
     fn has_key<T: PartialEq<Literal>>(&self, doc: &Document, key: T) -> bool {

@@ -3,7 +3,7 @@ use itertools::Itertools;
 use super::{DebugFmt, SealedObjectLike, SealedSyntaxLike, Structure, TokenRef};
 use crate::Document;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Object {
     opening: TokenRef,
     closure: TokenRef,

@@ -29,7 +29,7 @@ impl<T: IntoLiteral> IntoStructureInner for T {
 }
 
 #[derive(Clone, Debug)]
-pub struct ArrayBuilder(Vec<Literal>);
+pub struct ArrayBuilder(pub(crate) Vec<Literal>);
 
 impl ArrayBuilder {
     pub fn new() -> Self { Self(vec![]) }
@@ -40,7 +40,7 @@ impl ArrayBuilder {
     }
 }
 
-pub struct ObjectBuilder<'a>(Vec<(Literal, Box<dyn IntoStructure + 'a>)>);
+pub struct ObjectBuilder<'a>(pub(crate) Vec<(Literal, Box<dyn IntoStructure + 'a>)>);
 
 impl<'a> ObjectBuilder<'a> {
     pub fn new() -> Self { Self(vec![]) }

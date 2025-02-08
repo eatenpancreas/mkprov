@@ -1,7 +1,7 @@
 use super::{Array, DebugFmt, Object, SealedSyntaxLike, TokenRef, Value};
 use crate::Document;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Structure {
     Object(Object),
     Value(Value),

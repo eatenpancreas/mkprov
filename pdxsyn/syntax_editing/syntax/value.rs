@@ -2,7 +2,7 @@ use crate::{Document, Literal};
 
 use super::{DebugFmt, SealedSyntaxLike, TokenRef};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Value(TokenRef);
 
 impl SealedSyntaxLike for Value {

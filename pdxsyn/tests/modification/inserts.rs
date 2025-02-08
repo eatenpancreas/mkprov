@@ -1,5 +1,5 @@
 use pdxsyn::{
-    Document, Lexer, Token,
+    Document, IntoLiteral, Lexer, Token,
     syntax::{ArrayBuilder, DebugFmt, ObjectBuilder, ObjectLike},
 };
 
@@ -53,6 +53,14 @@ fn keyval_insertion_complex_array_test() {
         .unwrap()
         .as_array_mut()
         .unwrap();
+
+    assert_eq!(arr.iter(&doc).next().unwrap(), &100.into_literal());
+    assert_eq!(arr.remove(&mut doc, 0).unwrap(), 100.into_literal());
+
+    arr.push(&mut doc, 300);
+    arr.push(&mut doc, "300");
+
+    assert!(arr.has(&doc, 300));
 
     println!("{}", doc.into_string())
 }

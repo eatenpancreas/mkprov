@@ -9,6 +9,11 @@ mod lexing {
 }
 
 #[cfg(test)]
+mod modification {
+    mod inserts;
+}
+
+#[cfg(test)]
 mod parsing {
     mod massive;
     mod simple;
@@ -18,5 +23,4 @@ mod parsing {
 mod common {
     mod capacity;
     mod date_tests;
-    mod inserts;
 }

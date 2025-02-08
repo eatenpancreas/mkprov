@@ -118,13 +118,15 @@ impl Document {
         Some(self.inner_tokens.remove(self.token_position(r)?).1)
     }
 
-    pub(crate) fn remove_range(&mut self, left: TokenRef, right: TokenRef) {
+    pub(crate) fn remove_range(&mut self, left: TokenRef, right: TokenRef) -> Vec<Token> {
         let left = self.token_position(left).unwrap();
         let right = self.token_position(right).unwrap();
 
+        let mut tokens = vec![];
         for _ in 0..=right - left {
-            self.token_at(left).and_then(|t| self.remove_token(t));
+            tokens.extend(self.token_at(left).and_then(|t| self.remove_token(t)));
         }
+        tokens
     }
 
     /// Returns all tokens in the document in their original order, forming a single string. Consumes `self`
