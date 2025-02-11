@@ -10,7 +10,8 @@ path = "main.rs"
 [dependencies]
 atty = "0.2.14"
 clap = { version = "4.5.27", features = ["derive"] }
-mod_workspace = { path = "../mod_workspace" }
-
-[dev-dependencies]
+mkprov-lib = { path = "../mkprov_lib" }
+rust-fuzzy-search = "0.1.1"
+itertools.workspace = true
+cli-prompts = "0.1.0"
 tempdir = "0.3.7"

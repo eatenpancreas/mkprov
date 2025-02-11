@@ -1,5 +1,8 @@
+use ActionCommands::*;
 use clap::{Parser, Subcommand, ValueEnum};
-use mod_workspace::Workspace;
+use mkprov_lib::workspace::Workspace;
+
+use crate::query::QueryOutput;
 
 /// The action part of Mkprov
 #[derive(Parser, Debug)]
@@ -27,6 +30,10 @@ pub enum ActionCommands {
         to: MoveTo,
         /// name of the thing to move to
         name: String,
+    },
+    /// Changes the owner(country) of the item
+    Own {
+        owner: String,
     },
     /// Sets the climate
     SetClimate {
@@ -75,7 +82,21 @@ pub enum Severity {
 }
 
 impl ActionArgs {
-    pub fn main(_commands: ActionCommands, items: Vec<String>, _workspace: Workspace) {
-        println!("{items:?}")
+    pub fn main(
+        commands: ActionCommands,
+        items: impl Iterator<Item = QueryOutput>,
+        _workspace: Workspace,
+    ) {
+        match commands {
+            Own { owner } => {
+                for item in items {
+                    if let Some(u) = item.unsure() {
+                        // format!("Did you mean with {u}?");
+                    }
+                    // println!("setting {owner} as owner for {item:?}")
+                }
+            }
+            _ => println!("{:?}", items.collect::<Vec<_>>()),
+        }
     }
 }

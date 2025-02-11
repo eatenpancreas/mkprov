@@ -1,36 +1,45 @@
-mod action;
-mod query;
+pub mod action;
+pub mod query;
+
+#[cfg(test)]
+mod test;
 
 use action::ActionArgs;
 use clap::{CommandFactory, Parser};
-use mod_workspace::Workspace;
-use query::QueryArgs;
-use std::io;
+use itertools::Itertools;
+use mkprov_lib::workspace::Workspace;
+use query::{QueryArgs, QueryOutput};
+use std::io::{self, Read};
 
 fn main() {
-    let workspace = match Workspace::load().unwrap() {
-        Some(wk) => wk,
-        None => Workspace::create().unwrap(),
-    };
+    let workspace = temp_workdir_create();
+    // let workspace = match Workspace::load().unwrap() {
+    //     Some(wk) => wk,
+    //     None => Workspace::create().unwrap(),
+    // };
 
     if !atty::is(atty::Stream::Stdin) {
-        let lines: Vec<String> = io::stdin()
-            .lines()
-            .collect::<Result<_, _>>()
+        let mut file = String::new();
+        io::stdin()
+            .read_to_string(&mut file)
             .expect("Failed to read stdin input");
+
+        let query_output = file.split_whitespace().map(|s| QueryOutput::parse(s));
 
         let args = ActionArgs::parse();
         if args.print_help {
             print_action_help();
         }
 
-        ActionArgs::main(args.commands.unwrap(), lines, workspace);
+        ActionArgs::main(args.commands.unwrap(), query_output, workspace);
     } else {
         let args = QueryArgs::parse();
         if args.action {
             print_action_help();
         }
-        QueryArgs::main(args.kind.unwrap(), args.items, workspace);
+
+        let out = QueryArgs::main(args.kind.unwrap(), args.items, workspace);
+        println!("{}", out.iter().map(ToString::to_string).collect_vec().join(" "));
     }
 }
 
@@ -46,4 +55,15 @@ fn print_action_help() {
     );
     action.print_help().unwrap();
     std::process::exit(0);
+}
+
+fn temp_workdir_create() -> Workspace {
+    let p = tempdir::TempDir::new("").unwrap().into_path();
+    let mut wk = Workspace::custom_create(p).unwrap();
+
+    let mut source_dir = std::env::current_dir().unwrap();
+    source_dir.push("test_files/eu4");
+    wk.game_location = source_dir;
+
+    wk
 }
