@@ -6,6 +6,7 @@ members = [
     "pdxsyn",
     "test_files",
     "mkprov_lib",
+    "mkprov_eu4",
     "mkprov"
 ]
 

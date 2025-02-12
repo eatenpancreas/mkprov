@@ -1,15 +1,16 @@
 [package]
-name = "mkprov"
+name = "mkprov-eu4"
 version = "0.0.1"
 edition = "2021"
 
-[[bin]]
-name = "mkprov"
-path = "main.rs"
+[lib]
+path = "lib.rs"
 
 [dependencies]
-atty = "0.2.14"
 clap = { version = "4.5.27", features = ["derive"] }
 mkprov-lib = { path = "../mkprov_lib" }
-mkprov-eu4 = { path = "../mkprov_eu4" }
+rust-fuzzy-search = "0.1.1"
+itertools.workspace = true
+derived-deref.workspace = true
+cli-prompts = "0.1.0"
 tempdir = "0.3.7"

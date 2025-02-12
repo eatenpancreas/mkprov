@@ -2,6 +2,7 @@ mod from_file;
 mod workspace_file;
 
 pub use from_file::*;
+pub use workspace_file::*;
 
 use std::{
     fs,
@@ -12,18 +13,17 @@ use std::{
 use derived_deref::{Deref, DerefMut};
 use pdxsyn::{Document, syntax::RootObject};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
-use workspace_file::WorkspaceFile;
 
 pub trait ConfigTrait: Default + Serialize + DeserializeOwned {}
 impl<T: Default + Serialize + DeserializeOwned> ConfigTrait for T {}
 
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Default, Serialize, Deserialize, Clone, Copy, Debug)]
 pub enum Game {
     #[default]
     Eu4,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Config {
     pub game_location: PathBuf,
     pub game: Game,
@@ -36,7 +36,7 @@ impl Default for Config {
     }
 }
 
-#[derive(Deref, DerefMut)]
+#[derive(Deref, DerefMut, Clone, Debug)]
 pub struct Workspace {
     location: PathBuf,
     #[target]
@@ -50,36 +50,36 @@ impl Workspace {
     pub fn create() -> io::Result<Self> { Self::custom_create(std::env::current_dir()?) }
 
     #[inline]
-    pub fn get_any_file<'a, F: FromFile>(&'a self, path: &'a str) -> WorkspaceFile<'a, F> {
-        WorkspaceFile::get(self, path)
+    pub fn get_any_file<F: FromFile>(&self, path: impl ToString) -> WorkspaceFile<F> {
+        WorkspaceFile::get(path)
     }
 
     #[inline]
-    pub fn get_string_file<'a>(&'a self, path: &'a str) -> WorkspaceFile<'a, String> {
-        WorkspaceFile::get(self, path)
+    pub fn get_string_file(&self, path: impl ToString) -> WorkspaceFile<String> {
+        WorkspaceFile::get(path)
     }
 
     #[inline]
-    pub fn get_csv_file<'a, T: Serialize + DeserializeOwned>(
-        &'a self,
-        path: &'a str,
-    ) -> WorkspaceFile<'a, Csv<T>> {
-        WorkspaceFile::get(self, path)
+    pub fn get_csv_file<T: Serialize + DeserializeOwned>(
+        &self,
+        path: impl ToString,
+    ) -> WorkspaceFile<Csv<T>> {
+        WorkspaceFile::get(path)
     }
 
     #[inline]
-    pub fn get_any_csv_file<'a>(&'a self, path: &'a str) -> WorkspaceFile<'a, AnyCsv> {
-        WorkspaceFile::get(self, path)
+    pub fn get_any_csv_file(&self, path: impl ToString) -> WorkspaceFile<AnyCsv> {
+        WorkspaceFile::get(path)
     }
 
     #[inline]
-    pub fn get_pdx_file<'a>(&'a self, path: &'a str) -> WorkspaceFile<'a, (Document, RootObject)> {
-        WorkspaceFile::get(self, path)
+    pub fn get_pdx_file(&self, path: impl ToString) -> WorkspaceFile<(Document, RootObject)> {
+        WorkspaceFile::get(path)
     }
 
     #[inline]
-    pub fn get_pdx_file_unparsed<'a>(&'a self, path: &'a str) -> WorkspaceFile<'a, Document> {
-        WorkspaceFile::get(self, path)
+    pub fn get_pdx_file_unparsed(&self, path: impl ToString) -> WorkspaceFile<Document> {
+        WorkspaceFile::get(path)
     }
 
     #[inline]
