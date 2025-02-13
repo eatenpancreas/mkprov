@@ -1,6 +1,4 @@
-mod action;
 use crate::common::ItemKind::{self};
-pub use action::*;
 
 #[derive(clap::Args, Clone, Debug)]
 pub struct QueryArgs {
@@ -10,31 +8,54 @@ pub struct QueryArgs {
     pub(crate) items: Vec<String>,
     /// Sets the continent of the query
     #[clap(flatten)]
-    actions: QueryActions,
+    pub(crate) actions: QueryActions,
 }
 
 /// Actions
 #[derive(clap::Args, Clone, Debug)]
 pub struct QueryActions {
-    /// Sets the owner of the queried items
+    /// [action] Sets the owner of the queried items
     #[arg(short, long)]
-    owner: Option<String>,
-    /// Sets the continent of the queried items
+    pub(crate) owner: Option<String>,
+    /// [action] Sets the continent of the queried items
     #[arg(long)]
-    continent: Option<String>,
-    /// Sets the tradenode of the queried items
+    pub(crate) continent: Option<String>,
+    /// [action] Sets the tradenode of the queried items
     #[arg(long)]
-    tradenode: Option<String>,
-    /// Sets the climate of the queried items
+    pub(crate) tradenode: Option<String>,
+    /// [action] Sets the climate of the queried items
     #[arg(long)]
-    climate: Option<ClimateType>,
-    /// Sets the monsoon of the queried items
+    pub(crate) climate: Option<ClimateType>,
+    /// [action] Sets the monsoon of the queried items
     #[arg(long)]
-    monsoon: Option<Severity>,
-    /// Sets the winter of the queried items
+    pub(crate) monsoon: Option<Severity>,
+    /// [action] Sets the winter of the queried items
     #[arg(long)]
-    winter: Option<Severity>,
-    /// Deletes the queried items
+    pub(crate) winter: Option<Severity>,
+    /// [action] Deletes the queried items
     #[arg(long)]
-    delete: bool,
+    pub(crate) delete: bool,
+    /// [action] Prints the ids of the provinces in the queried items
+    #[arg(long)]
+    pub(crate) print: bool,
+}
+
+use clap::ValueEnum;
+
+#[derive(ValueEnum, Clone, Debug, Default)]
+pub enum ClimateType {
+    Tropical,
+    Arid,
+    Arctic,
+    #[default]
+    Normal,
+}
+
+#[derive(ValueEnum, Clone, Debug, Default)]
+pub enum Severity {
+    Normal,
+    Mild,
+    Severe,
+    #[default]
+    None,
 }

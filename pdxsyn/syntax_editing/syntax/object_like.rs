@@ -159,4 +159,9 @@ pub trait ObjectLike: SealedObjectLike {
         let idx = self.iter_key_indices(doc, key).next()?;
         self.get_value_at(idx)
     }
+
+    /// Gets the index at the specified key
+    fn first_index<T: IntoLiteral>(&self, doc: &Document, key: T) -> Option<usize> {
+        self.iter_key_indices(doc, key).next()
+    }
 }

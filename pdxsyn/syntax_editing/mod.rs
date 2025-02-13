@@ -80,8 +80,8 @@ impl Document {
         self.get_token(r)?.as_literal()
     }
 
-    pub(crate) fn _get_literal_mut(&mut self, r: TokenRef) -> Option<&mut Literal> {
-        self._get_token_mut(r)?.as_literal_mut()
+    pub(crate) fn get_literal_mut(&mut self, r: TokenRef) -> Option<&mut Literal> {
+        self.get_token_mut(r)?.as_literal_mut()
     }
 
     pub(crate) fn get_token(&self, r: TokenRef) -> Option<&Token> {
@@ -90,7 +90,7 @@ impl Document {
             .find_map(|(r2, t)| (r == *r2).then_some(t))
     }
 
-    pub(crate) fn _get_token_mut(&mut self, r: TokenRef) -> Option<&mut Token> {
+    pub(crate) fn get_token_mut(&mut self, r: TokenRef) -> Option<&mut Token> {
         self.inner_tokens
             .iter_mut()
             .find_map(|(r2, t)| (r == *r2).then_some(t))

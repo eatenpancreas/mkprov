@@ -9,8 +9,10 @@ path = "lib.rs"
 [dependencies]
 clap = { version = "4.5.27", features = ["derive"] }
 mkprov-lib = { path = "../mkprov_lib" }
+pdxsyn = { path = "../pdxsyn" }
 rust-fuzzy-search = "0.1.1"
 itertools.workspace = true
 derived-deref.workspace = true
 cli-prompts = "0.1.0"
 tempdir = "0.3.7"
+thiserror.workspace=true

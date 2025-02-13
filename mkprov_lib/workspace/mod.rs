@@ -1,3 +1,4 @@
+mod combined_folder;
 mod from_file;
 mod workspace_file;
 
@@ -25,8 +26,8 @@ pub enum Game {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Config {
-    pub game_location: PathBuf,
-    pub game: Game,
+    pub game_location: Option<PathBuf>,
+    pub game: Option<Game>,
     pub line_wrap: Option<usize>,
 }
 
@@ -50,36 +51,36 @@ impl Workspace {
     pub fn create() -> io::Result<Self> { Self::custom_create(std::env::current_dir()?) }
 
     #[inline]
-    pub fn get_any_file<F: FromFile>(&self, path: impl ToString) -> WorkspaceFile<F> {
-        WorkspaceFile::get(path)
+    pub fn get_any_file(&self, path: impl Into<PathBuf>) -> WorkspaceFile<()> {
+        WorkspaceFile::get(strip_workspace(path.into(), self))
     }
 
     #[inline]
-    pub fn get_string_file(&self, path: impl ToString) -> WorkspaceFile<String> {
-        WorkspaceFile::get(path)
+    pub fn get_string_file(&self, path: impl Into<PathBuf>) -> WorkspaceFile<String> {
+        WorkspaceFile::get(strip_workspace(path.into(), self))
     }
 
     #[inline]
     pub fn get_csv_file<T: Serialize + DeserializeOwned>(
         &self,
-        path: impl ToString,
+        path: impl Into<PathBuf>,
     ) -> WorkspaceFile<Csv<T>> {
-        WorkspaceFile::get(path)
+        WorkspaceFile::get(strip_workspace(path.into(), self))
     }
 
     #[inline]
-    pub fn get_any_csv_file(&self, path: impl ToString) -> WorkspaceFile<AnyCsv> {
-        WorkspaceFile::get(path)
+    pub fn get_any_csv_file(&self, path: impl Into<PathBuf>) -> WorkspaceFile<AnyCsv> {
+        WorkspaceFile::get(strip_workspace(path.into(), self))
     }
 
     #[inline]
-    pub fn get_pdx_file(&self, path: impl ToString) -> WorkspaceFile<(Document, RootObject)> {
-        WorkspaceFile::get(path)
+    pub fn get_pdx_file(&self, path: impl Into<PathBuf>) -> WorkspaceFile<(Document, RootObject)> {
+        WorkspaceFile::get(strip_workspace(path.into(), self))
     }
 
     #[inline]
-    pub fn get_pdx_file_unparsed(&self, path: impl ToString) -> WorkspaceFile<Document> {
-        WorkspaceFile::get(path)
+    pub fn get_pdx_file_unparsed(&self, path: impl Into<PathBuf>) -> WorkspaceFile<Document> {
+        WorkspaceFile::get(strip_workspace(path.into(), self))
     }
 
     #[inline]
@@ -109,4 +110,17 @@ impl Workspace {
 
         Ok(Self { config, location: current_path })
     }
+}
+
+fn strip_workspace(path: PathBuf, wk: &Workspace) -> PathBuf {
+    if let Ok(t) = path.strip_prefix(&wk.location) {
+        return t.into();
+    }
+    if let Some(source) = &wk.game_location {
+        if let Ok(t) = path.strip_prefix(source) {
+            return t.into();
+        }
+    }
+
+    path
 }

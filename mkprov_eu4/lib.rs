@@ -2,11 +2,12 @@ pub mod common;
 pub mod query;
 pub mod structure;
 
-use clap::{Parser, Subcommand};
-use common::ItemKind;
-use mkprov_lib::workspace::Workspace;
-use query::QueryArgs;
-use structure::ProvinceCsv;
+use clap::{CommandFactory, Parser, Subcommand};
+use common::{CountryTag, ItemKind};
+use itertools::Itertools;
+use mkprov_lib::{common::print_error, workspace::Workspace};
+use query::{QueryActions, QueryArgs};
+use structure::{ProvinceCsv, ProvinceHistories};
 
 #[derive(Parser, Debug)]
 #[command(arg_required_else_help = true)]
@@ -21,10 +22,56 @@ pub fn main(workspace: Workspace) {
     match args.command {
         Command::Query(args) => match args.kind {
             ItemKind::Province => {
-                for item in args.items {
-                    let csv = ProvinceCsv::load(&workspace);
-                    let id = csv.search_name(&item);
-                    println!("{id:?}");
+                if args.items.is_empty() {
+                    print_error("Failed to provide items for mkprov query.");
+                    Args::command()
+                        .find_subcommand_mut("query")
+                        .unwrap()
+                        .print_help()
+                        .unwrap();
+                }
+
+                let ids = args
+                    .items
+                    .into_iter()
+                    .filter_map(|item| {
+                        let csv = ProvinceCsv::load(&workspace);
+                        csv.search_name(&item)
+                    })
+                    .collect_vec();
+
+                match args.actions {
+                    QueryActions {
+                        owner: None,
+                        continent: None,
+                        tradenode: None,
+                        climate: None,
+                        monsoon: None,
+                        winter: None,
+                        delete: false,
+                        print: false,
+                    } => {
+                        print_error("No action given for mkprov query.");
+
+                        Args::command()
+                            .find_subcommand_mut("query")
+                            .unwrap()
+                            .print_help()
+                            .unwrap();
+                    }
+                    _ => {
+                        if let Some(owner) = args.actions.owner {
+                            for id in ids {
+                                match ProvinceHistories::load(&workspace).find_id(id, &workspace) {
+                                    Some(mut hist) => {
+                                        hist.set_owner(CountryTag::new(owner.chars()).unwrap());
+                                        hist.save(&workspace).unwrap();
+                                    }
+                                    None => println!("could not find {id} in province histories!"),
+                                }
+                            }
+                        }
+                    }
                 }
             }
             _ => {}

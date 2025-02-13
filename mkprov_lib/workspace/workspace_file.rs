@@ -1,13 +1,14 @@
 use LoadFileError::IncorrectFileFormat;
 use encoding_rs::{UTF_8, WINDOWS_1252};
-use std::{fs, io, marker::PhantomData};
+use std::{fs, io, marker::PhantomData, path::PathBuf};
 use thiserror::Error;
 
 use crate::workspace::{Workspace, from_file::FromFile};
 
-pub struct WorkspaceFile<F: FromFile> {
+#[derive(PartialEq, Clone, Debug)]
+pub struct WorkspaceFile<F> {
     _marker: PhantomData<F>,
-    path: String,
+    path: PathBuf,
 }
 
 #[derive(Error, Debug)]
@@ -28,24 +29,33 @@ pub enum SaveFileError<F: FromFile> {
     IntoFileError(F::IntoFileError),
 }
 
-impl<F: FromFile> WorkspaceFile<F> {
-    #[inline]
-    pub fn get(path: impl ToString) -> Self {
-        Self { path: path.to_string(), _marker: Default::default() }
+impl<T> WorkspaceFile<T> {
+    pub fn in_mod(&self, workspace: &Workspace) -> bool {
+        let mod_path = workspace.location().join(&self.path);
+        mod_path.exists()
     }
 
+    pub fn in_source(&self, workspace: &Workspace) -> bool {
+        let mod_path = workspace.game_location.as_ref().unwrap().join(&self.path);
+        mod_path.exists()
+    }
+
+    pub fn path(&self) -> &PathBuf { &self.path }
+
+    #[inline]
+    pub(crate) fn get(path: PathBuf) -> Self {
+        Self { path: path.into(), _marker: Default::default() }
+    }
+}
+
+impl WorkspaceFile<()> {
+    #[inline]
+    pub fn into_typed<F: FromFile>(self) -> WorkspaceFile<F> { WorkspaceFile::get(self.path) }
+}
+
+impl<F: FromFile> WorkspaceFile<F> {
     /// Loads the file from the mod directory.
-    ///
-    /// # Errors
-    ///
-    /// Returns a `LoadFileError::IoError` if there is an issue reading the file from the filesystem.
-    /// Returns a `LoadFileError::IncorrectFileFormat` if the file is not in UTF-8 or ANSI format.
-    ///
-    /// # Note
-    ///
-    /// If the file does not exist in the mod directory, use `Self::pull_source` to load it from
-    /// the source directory into the mod directory first.
-    pub fn load(&self, workspace: &Workspace) -> Result<F, LoadFileError<F>> {
+    pub fn load_mod(&self, workspace: &Workspace) -> Result<F, LoadFileError<F>> {
         let mod_path = workspace.location().join(&self.path);
         self.read_bytes(fs::read(mod_path)?)
     }
@@ -53,32 +63,21 @@ impl<F: FromFile> WorkspaceFile<F> {
     pub fn load_either(&self, workspace: &Workspace) -> Result<F, LoadFileError<F>> {
         let mod_path = workspace.location().join(&self.path);
         if !mod_path.exists() {
-            let source_path = workspace.game_location.join(&self.path);
+            let source_path = workspace.game_location.as_ref().unwrap().join(&self.path);
             self.read_bytes(fs::read(source_path)?)
         } else {
             self.read_bytes(fs::read(mod_path)?)
         }
     }
 
-    /// Loads the file from the source directory and writes it to the mod directory.
-    /// # Warning
-    /// Will override the file in the mod directory.
-    pub fn pull_source(&self, workspace: &Workspace) -> Result<F, LoadFileError<F>> {
-        let source_path = workspace.game_location.join(&self.path);
-        let bytes = fs::read(source_path)?;
-
-        let mod_path = workspace.location().join(&self.path);
-        if let Some(parent) = mod_path.parent() {
+    pub fn save(&self, data: F, workspace: &Workspace) -> Result<(), SaveFileError<F>> {
+        let path = workspace.location().join(&self.path);
+        println!("saving to: {path:?}");
+        if let Some(parent) = path.parent() {
             fs::create_dir_all(parent)?;
         }
-        fs::write(mod_path, &bytes)?;
-
-        self.read_bytes(bytes)
-    }
-
-    pub fn save(&self, data: F, workspace: &Workspace) -> Result<(), SaveFileError<F>> {
         Ok(fs::write(
-            workspace.location().join(&self.path),
+            path,
             data.into_file()
                 .map_err(|e| SaveFileError::IntoFileError(e))?,
         )?)
@@ -92,15 +91,5 @@ impl<F: FromFile> WorkspaceFile<F> {
         } else {
             Err(IncorrectFileFormat)
         }
-    }
-
-    pub fn in_mod(&self, workspace: &Workspace) -> bool {
-        let mod_path = workspace.location().join(&self.path);
-        mod_path.exists()
-    }
-
-    pub fn in_source(&self, workspace: &Workspace) -> bool {
-        let mod_path = workspace.game_location.join(&self.path);
-        mod_path.exists()
     }
 }

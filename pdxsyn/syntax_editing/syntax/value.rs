@@ -1,4 +1,4 @@
-use crate::{Document, Literal};
+use crate::{Document, IntoLiteral, Literal};
 
 use super::{DebugFmt, SealedSyntaxLike, TokenRef};
 
@@ -15,6 +15,12 @@ impl Value {
 
     pub fn get<'a>(&self, doc: &'a Document) -> Option<&'a Literal> {
         doc.get_literal(*self.raw_inner())
+    }
+
+    pub fn replace(&self, replace: impl IntoLiteral, doc: &mut Document) {
+        if let Some(t) = doc.get_literal_mut(self.0) {
+            *t = replace.into_literal();
+        }
     }
 }
 
