@@ -7,21 +7,51 @@ use derived_deref::{Deref, DerefMut};
 use pdxsyn::{Document, Lexer, PdxError, syntax::RootObject};
 use sealed::SealedFromFile;
 use serde::{Serialize, de::DeserializeOwned};
-use std::borrow::Cow;
+use std::{borrow::Cow, string::FromUtf8Error};
 use thiserror::Error;
+use yaml_rust2::{EmitError, ScanError, Yaml, YamlEmitter, YamlLoader};
 
 pub trait FromFile: Sized + SealedFromFile {
     type FromFileError;
     type IntoFileError;
-    fn into_file(self) -> Result<Vec<u8>, Self::IntoFileError>;
+    fn into_file(self) -> Result<String, Self::IntoFileError>;
     fn from_file(str: Cow<str>) -> Result<Self, Self::FromFileError>;
+}
+
+#[derive(Deref, DerefMut, Debug)]
+pub struct AnyYaml(Yaml);
+
+#[derive(Error, Debug)]
+pub enum YamlFromFileError {
+    #[error(transparent)]
+    ScanError(#[from] ScanError),
+    #[error("No yaml found")]
+    NoYaml,
+}
+
+impl SealedFromFile for AnyYaml {}
+impl FromFile for AnyYaml {
+    type FromFileError = YamlFromFileError;
+    type IntoFileError = EmitError;
+    fn into_file(self) -> Result<String, Self::IntoFileError> {
+        let mut out_str = String::new();
+        let mut emitter = YamlEmitter::new(&mut out_str);
+        emitter.dump(&self)?;
+        Ok(out_str)
+    }
+    fn from_file(str: Cow<str>) -> Result<Self, Self::FromFileError> {
+        YamlLoader::load_from_str(&str)?
+            .pop()
+            .ok_or(YamlFromFileError::NoYaml)
+            .map(|o| Self(o))
+    }
 }
 
 impl SealedFromFile for String {}
 impl FromFile for String {
     type FromFileError = ();
     type IntoFileError = ();
-    fn into_file(self) -> Result<Vec<u8>, Self::IntoFileError> { Ok(self.into_bytes()) }
+    fn into_file(self) -> Result<String, Self::IntoFileError> { Ok(self) }
     fn from_file(str: Cow<str>) -> Result<Self, Self::FromFileError> { Ok(str.to_string()) }
 }
 
@@ -29,9 +59,7 @@ impl SealedFromFile for Document {}
 impl FromFile for Document {
     type FromFileError = PdxError;
     type IntoFileError = ();
-    fn into_file(self) -> Result<Vec<u8>, Self::IntoFileError> {
-        Ok(self.into_string().into_bytes())
-    }
+    fn into_file(self) -> Result<String, Self::IntoFileError> { Ok(self.into_string()) }
     fn from_file(str: Cow<str>) -> Result<Self, Self::FromFileError> {
         let lex: Result<Vec<_>, _> = Lexer::new(&str).collect();
         Ok(Document::create(lex?))
@@ -62,13 +90,13 @@ impl SealedFromFile for AnyCsv {}
 impl FromFile for AnyCsv {
     type FromFileError = csv::Error;
     type IntoFileError = CsvIntoFileError;
-    fn into_file(self) -> Result<Vec<u8>, Self::IntoFileError> {
+    fn into_file(self) -> Result<String, Self::IntoFileError> {
         let mut writer = WriterBuilder::new().delimiter(b';').from_writer(vec![]);
         writer.write_record(&self.headers)?;
         for i in self.into_records() {
             writer.write_record(i.iter())?;
         }
-        Ok(writer.into_inner()?)
+        Ok(String::from_utf8(writer.into_inner()?)?)
     }
 
     fn from_file(str: Cow<str>) -> Result<Self, Self::FromFileError> {
@@ -107,6 +135,8 @@ pub enum CsvIntoFileError {
     #[error(transparent)]
     IntoInnerError(#[from] IntoInnerError<Writer<Vec<u8>>>),
     #[error(transparent)]
+    Utf8Error(#[from] FromUtf8Error),
+    #[error(transparent)]
     CsvError(#[from] csv::Error),
 }
 
@@ -114,13 +144,13 @@ impl<T: Serialize + DeserializeOwned> SealedFromFile for Csv<T> {}
 impl<T: Serialize + DeserializeOwned> FromFile for Csv<T> {
     type FromFileError = csv::Error;
     type IntoFileError = CsvIntoFileError;
-    fn into_file(self) -> Result<Vec<u8>, Self::IntoFileError> {
+    fn into_file(self) -> Result<String, Self::IntoFileError> {
         let mut writer = WriterBuilder::new().delimiter(b';').from_writer(vec![]);
         writer.write_record(&self.headers)?;
         for i in self.into_records() {
             writer.serialize(i)?;
         }
-        Ok(writer.into_inner()?)
+        Ok(String::from_utf8(writer.into_inner()?)?)
     }
     fn from_file(str: Cow<str>) -> Result<Self, Self::FromFileError> {
         let mut reader = ReaderBuilder::new()
@@ -137,7 +167,7 @@ impl SealedFromFile for (Document, RootObject) {}
 impl FromFile for (Document, RootObject) {
     type FromFileError = PdxError;
     type IntoFileError = ();
-    fn into_file(self) -> Result<Vec<u8>, Self::IntoFileError> { self.0.into_file() }
+    fn into_file(self) -> Result<String, Self::IntoFileError> { self.0.into_file() }
     fn from_file(str: Cow<str>) -> Result<Self, Self::FromFileError> {
         let doc = Document::from_file(str)?;
         let parsed = doc.parse()?;

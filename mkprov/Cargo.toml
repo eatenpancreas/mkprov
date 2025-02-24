@@ -13,3 +13,8 @@ clap = { version = "4.5.27", features = ["derive"] }
 mkprov-lib = { path = "../mkprov_lib" }
 mkprov-eu4 = { path = "../mkprov_eu4" }
 tempdir = "0.3.7"
+anyhow = "1.0.96"
+crossterm = "0.28.1"
+
+[dev-dependencies]
+mkprov-eu4 = { path = "../mkprov_eu4", features = ["no-prompt"]}

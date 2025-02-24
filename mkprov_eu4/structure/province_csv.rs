@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use cli_prompts::{DisplayPrompt, prompts::Selection, style::SelectionStyle};
+use cfg_if::cfg_if;
+use derived_deref::Deref;
 use itertools::Itertools;
 use mkprov_lib::{
     common::Color,
@@ -8,14 +9,16 @@ use mkprov_lib::{
 };
 use rust_fuzzy_search::fuzzy_search_sorted;
 
+#[derive(Deref)]
 pub struct ProvinceCsv {
     _file: WorkspaceFile<AnyCsv>,
+    #[target]
     data: HashMap<u16, (Color, String)>,
 }
 
 impl ProvinceCsv {
     pub fn load(workspace: &Workspace) -> Self {
-        let def_file = workspace.get_any_csv_file("map/definition.csv");
+        let mut def_file = workspace.get_any_csv_file("map/definition.csv");
         let csv = def_file.load_either(workspace).unwrap();
         let data = csv
             .iter()
@@ -70,29 +73,43 @@ impl ProvinceCsv {
             if first_score == 1. {
                 return self.index_of_name(&first_name);
             } else {
-                let mut similar_scores = search_iter
+                let similar_scores = search_iter
                     .filter(|(_, score)| (first_score - score).abs() <= 0.2)
                     .collect_vec();
 
+                let similar_scores_without_normalised =
+                    similar_scores.iter().filter(|(name, _)| {
+                        !normalise_name(first_name).is_some_and(|norm| &norm == name)
+                    });
+
                 // first score is very similar and no others come close
-                if first_score > 0.5 && similar_scores.len() == 0 {
+                if first_score > 0.5 && similar_scores_without_normalised.count() == 0 {
                     eprintln!(
                         "Assuming {search_for:?} to be {:?}",
                         capitalize_first_letter(first_name)
                     );
                     return self.index_of_name(&first_name);
                 } else if first_score > 0.5 {
-                    similar_scores.push((first_name, first_score));
+                    cfg_if! {
+                        if #[cfg(feature = "no-prompt")] {
+                            println!("No exact match was found for {search_for:?} and no-prompt was enabled. Ignoring.");
+                            return None;
+                        } else {
+                            use cli_prompts::{DisplayPrompt, prompts::Selection, style::SelectionStyle};
 
-                    let chosen = Selection::new(
-                        "(ESC to quit) No exact match was found, but similar province names exist: ",
-                        similar_scores.iter().map(|(name, _)| capitalize_first_letter(name)),
-                    )
-                    .style(SelectionStyle::default())
-                    .display()
-                    .unwrap();
+                            let mut similar_scores = similar_scores;
+                            similar_scores.push((first_name, first_score));
+                            let chosen = Selection::new(
+                                "(ESC to quit) No exact match was found, but similar province names exist: ",
+                                similar_scores.iter().map(|(name, _)| capitalize_first_letter(name)),
+                            )
+                            .style(SelectionStyle::default())
+                            .display()
+                            .unwrap();
 
-                    return self.index_of_name(&chosen);
+                            return self.index_of_name(&chosen);
+                        }
+                    }
                 }
 
                 eprintln!("No match found for {search_for:?}");

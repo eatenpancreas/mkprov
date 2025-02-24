@@ -51,6 +51,11 @@ impl Workspace {
     pub fn create() -> io::Result<Self> { Self::custom_create(std::env::current_dir()?) }
 
     #[inline]
+    pub fn game_location_exists(&self) -> bool {
+        self.game_location.as_ref().is_some_and(|gl| gl.exists())
+    }
+
+    #[inline]
     pub fn get_any_file(&self, path: impl Into<PathBuf>) -> WorkspaceFile<()> {
         WorkspaceFile::get(strip_workspace(path.into(), self))
     }
@@ -70,6 +75,11 @@ impl Workspace {
 
     #[inline]
     pub fn get_any_csv_file(&self, path: impl Into<PathBuf>) -> WorkspaceFile<AnyCsv> {
+        WorkspaceFile::get(strip_workspace(path.into(), self))
+    }
+
+    #[inline]
+    pub fn get_any_yaml_file(&self, path: impl Into<PathBuf>) -> WorkspaceFile<AnyYaml> {
         WorkspaceFile::get(strip_workspace(path.into(), self))
     }
 

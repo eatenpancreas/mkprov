@@ -3,6 +3,9 @@ name = "mkprov-eu4"
 version = "0.0.1"
 edition = "2021"
 
+[features]
+no-prompt = []
+
 [lib]
 path = "lib.rs"
 
@@ -16,3 +19,4 @@ derived-deref.workspace = true
 cli-prompts = "0.1.0"
 tempdir = "0.3.7"
 thiserror.workspace=true
+cfg-if = "1.0.0"
